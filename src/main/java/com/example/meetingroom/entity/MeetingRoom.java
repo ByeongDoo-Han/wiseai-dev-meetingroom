@@ -1,6 +1,6 @@
 package com.example.meetingroom.entity;
 
-import com.example.meetingroom.dto.MeetingRoomResponseDto;
+import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
