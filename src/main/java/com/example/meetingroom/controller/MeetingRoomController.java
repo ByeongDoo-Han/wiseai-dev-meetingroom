@@ -149,7 +149,7 @@ public class MeetingRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류 발생")
         })
     @PutMapping("/meeting-rooms/{id}")
-    public ResponseEntity<MeetingRoomResponseDto> updateMeetingRoom(@PathVariable Long id,
+    public ResponseEntity<CustomResponseEntity<Object>> updateMeetingRoom(@PathVariable Long id,
                                                                     @RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
         return meetingRoomService.updateMeetingRoom(id, meetingRoomRequestDto);
     }
@@ -161,7 +161,7 @@ public class MeetingRoomController {
             @ApiResponse(responseCode = "500", description = "서버 오류 발생")
         })
     @DeleteMapping("/meeting-rooms/{id}")
-    public ResponseEntity<Void> deleteMeetingRoom(@PathVariable Long id) {
+    public ResponseEntity<CustomResponseEntity<Object>> deleteMeetingRoom(@PathVariable Long id) {
         return meetingRoomService.deleteMeetingRoom(id);
     }
 }
