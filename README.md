@@ -13,6 +13,32 @@
 - **결제 상태 조회**: `GET /payments/{paymentId}/status`
 - **결제사별 웹훅 수신**: `POST /webhooks/payments/{provider}`
 - **모든 API는 Swagger UI로 테스트 가능해야 함**
+### 2.3 필요 API 엔드포인트
+
+| 구분  | 내용        | Method   | API                            | Authorization |
+|:----|:----------|:---------|:-------------------------------|:-----------|
+ | 회의실 | 회의실 모두 조회 | `GET`    | `/meeting-rooms`               |            |
+|     | 회의실 하나 조회 | `GET`    | `/meeting-rooms/{id}`          |            |
+|     | 회의실 수정    | `PUT`    | `/meeting-rooms/{id}`          | admin      |
+|     | 회의실 생성    | `POST`   | `/meeting-rooms`               | admin      |
+|     | 회의실 삭제    | `DELETE` | `/meeting-rooms/{id}`          | admin      |
+| 예약  | 예약 생성     | `POST`   | `/reservation`                 | user       |
+|     | 예약 수정     | `PUT`    | `/reservation/{id}`            | user       |
+|     | 예약 모두 조회  | `GET`    | `/reservation`                 |            |
+|     | 예약 하나 조회  | `GET`    | `/reservation/{id}`            |            |
+|     | 예약 취소     | `DELETE` | `/reservation/{id}`            | user       |
+|     | 결제 처리     | `POST`   | `/reservation/{id}/payment`    | user       |
+| 결제  | 결제 상태 조회  | `GET`    | `/payments/{paymentId}/status` | user       |
+|     | 결제 내역 조회  | `GET`    | `/payments` | user       |
+| 웹   | 결제사 별 웹훅  | `POST`   | `/webhooks/payments/{provider}` |           |
+
+
+
+
+- 회의실
+  - 생성
+  - 
+
 
 ## 3. 기술 스택
 
