@@ -1,7 +1,7 @@
 package com.example.meetingroom.service;
 
-import com.example.meetingroom.dto.MeetingRoomRequestDto;
-import com.example.meetingroom.dto.MeetingRoomResponseDto;
+import com.example.meetingroom.dto.meetingRoom.MeetingRoomRequestDto;
+import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
 import com.example.meetingroom.entity.MeetingRoom;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
@@ -22,7 +22,7 @@ public class MeetingRoomService {
 
     private final MeetingRoomRepository meetingRoomRepository;
 
-    public ResponseEntity<CustomResponseEntity<Object>> getAllMeetingRooms() {
+    public List<MeetingRoomResponseDto> getAllMeetingRooms() {
         List<MeetingRoom> foundMeetingRoomList = meetingRoomRepository.findAll();
         List<MeetingRoomResponseDto> responseDtoList = new ArrayList<>();
         for(MeetingRoom meetingRoom:foundMeetingRoomList){
@@ -34,17 +34,11 @@ public class MeetingRoomService {
                 .build();
             responseDtoList.add(dto);
         }
-        return ResponseEntity.ok().body(
-            CustomResponseEntity.builder()
-                .success(true)
-                .httpStatus(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getHttpStatus())
-                .message(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getMessage())
-                .data(responseDtoList).build()
-        );
+        return responseDtoList;
     }
 
     @Transactional
-    public ResponseEntity<CustomResponseEntity<Object>> createMeetingRoom(final MeetingRoomRequestDto meetingRoomRequestDto) {
+    public MeetingRoomResponseDto createMeetingRoom(final MeetingRoomRequestDto meetingRoomRequestDto) {
         if(meetingRoomRepository.existsByName(meetingRoomRequestDto.getName())){
             throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
         }
@@ -55,35 +49,22 @@ public class MeetingRoomService {
             .pricePerHour(meetingRoomRequestDto.getPricePerHour())
             .build();
         MeetingRoom newMeetingRoom = meetingRoomRepository.save(meetingRoom);
-        return ResponseEntity.ok().body(CustomResponseEntity.builder()
-            .data(newMeetingRoom.toResponseEntity())
-            .httpStatus(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getHttpStatus())
-            .message(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getMessage())
-            .build());
+        return newMeetingRoom.toResponseEntity();
     }
 
     @Transactional
-    public ResponseEntity<CustomResponseEntity<Object>> updateMeetingRoom(final Long id, final MeetingRoomRequestDto meetingRoomRequestDto) {
+    public MeetingRoomResponseDto updateMeetingRoom(final Long id, final MeetingRoomRequestDto meetingRoomRequestDto) {
         MeetingRoom foundMeetingRoom = meetingRoomRepository.findById(id).orElseThrow(
             () -> new CustomException(ErrorCode.MEETING_ROOM_NOT_FOUND)
         );
-        return ResponseEntity.ok().body(CustomResponseEntity.builder()
-            .data(foundMeetingRoom.toResponseEntity())
-            .httpStatus(SuccessMessage.UPDATE_MEETING_ROOM_SUCCESS.getHttpStatus())
-            .message(SuccessMessage.UPDATE_MEETING_ROOM_SUCCESS.getMessage())
-            .build());
+        return foundMeetingRoom.toResponseEntity();
     }
 
     @Transactional
-    public ResponseEntity<CustomResponseEntity<Object>> deleteMeetingRoom(final Long id) {
+    public void deleteMeetingRoom(final Long id) {
         meetingRoomRepository.findById(id).orElseThrow(
             () -> new CustomException(ErrorCode.MEETING_ROOM_NOT_FOUND)
         );
         meetingRoomRepository.deleteById(id);
-        return ResponseEntity.ok().body(CustomResponseEntity.builder()
-            .data(null)
-            .message(SuccessMessage.DELETE_MEETING_ROOM_SUCCESS.getMessage())
-            .httpStatus(SuccessMessage.DELETE_MEETING_ROOM_SUCCESS.getHttpStatus())
-            .build());
     }
 }
