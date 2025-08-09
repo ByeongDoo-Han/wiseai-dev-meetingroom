@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MeetingRoomRepository extends JpaRepository<MeetingRoom, Long> {
+    boolean existsByName(String name);
 }

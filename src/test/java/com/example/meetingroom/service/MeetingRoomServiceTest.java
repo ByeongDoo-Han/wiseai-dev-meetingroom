@@ -1,5 +1,7 @@
 package com.example.meetingroom.service;
 
+import com.example.meetingroom.dto.meetingRoom.MeetingRoomRequestDto;
+import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
 import com.example.meetingroom.entity.MeetingRoom;
 import com.example.meetingroom.repository.MeetingRoomRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,16 +11,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("MeetingRoomService 테스트")
 public class MeetingRoomServiceTest {
 
     @Mock
@@ -33,18 +37,18 @@ public class MeetingRoomServiceTest {
     @BeforeEach
     void setUp() {
         room1 = MeetingRoom.builder()
-            .id(1L)
-            .name("회의실 A")
-            .capacity(10)
-            .pricePerHour(new BigDecimal("10000"))
-            .build();
+                .id(1L)
+                .name("회의실 A")
+                .capacity(10)
+                .pricePerHour(new BigDecimal("10000"))
+                .build();
 
         room2 = MeetingRoom.builder()
-            .id(2L)
-            .name("회의실 B")
-            .capacity(5)
-            .pricePerHour(new BigDecimal("7000"))
-            .build();
+                .id(2L)
+                .name("회의실 B")
+                .capacity(5)
+                .pricePerHour(new BigDecimal("7000"))
+                .build();
     }
 
     @Test
@@ -52,14 +56,37 @@ public class MeetingRoomServiceTest {
     void getAllMeetingRooms_shouldReturnAllMeetingRooms() {
         // Given
         List<MeetingRoom> expectedRooms = Arrays.asList(room1, room2);
-        when(meetingRoomRepository.findAll()).thenReturn(expectedRooms);
+        given(meetingRoomRepository.findAll()).willReturn(expectedRooms);
 
         // When
-        List<MeetingRoom> actualRooms = meetingRoomService.getAllMeetingRooms();
+        List<MeetingRoomResponseDto> actualRooms = meetingRoomService.getAllMeetingRooms();
 
         // Then
-        assertEquals(expectedRooms.size(), actualRooms.size());
-        assertEquals(expectedRooms.get(0).getName(), actualRooms.get(0).getName());
-        assertEquals(expectedRooms.get(1).getName(), actualRooms.get(1).getName());
+        assertThat(actualRooms).hasSize(2);
+        assertThat(actualRooms.get(0).getName()).isEqualTo("회의실 A");
+        assertThat(actualRooms.get(1).getName()).isEqualTo("회의실 B");
+    }
+
+    @Test
+    @DisplayName("회의실 생성")
+    void createMeetingRoom_shouldReturnNewMeetingRoom() {
+        // Given
+        MeetingRoomRequestDto requestDto = new MeetingRoomRequestDto("새 회의실", 20, new BigDecimal("20000"));
+        MeetingRoom newRoom = MeetingRoom.builder()
+                .id(3L)
+                .name(requestDto.getName())
+                .capacity(requestDto.getCapacity())
+                .pricePerHour(requestDto.getPricePerHour())
+                .build();
+
+        given(meetingRoomRepository.save(any(MeetingRoom.class))).willReturn(newRoom);
+
+        // When
+        MeetingRoomResponseDto responseDto = meetingRoomService.createMeetingRoom(requestDto);
+
+        // Then
+        verify(meetingRoomRepository).save(any(MeetingRoom.class));
+        assertThat(responseDto.getName()).isEqualTo("새 회의실");
+        assertThat(responseDto.getCapacity()).isEqualTo(20);
     }
 }
