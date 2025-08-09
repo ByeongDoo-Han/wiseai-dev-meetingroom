@@ -57,6 +57,10 @@ public class MeetingRoomService {
         MeetingRoom foundMeetingRoom = meetingRoomRepository.findById(id).orElseThrow(
             () -> new CustomException(ErrorCode.MEETING_ROOM_NOT_FOUND)
         );
+        foundMeetingRoom.update(meetingRoomRequestDto.getName(),
+            meetingRoomRequestDto.getCapacity(),
+            meetingRoomRequestDto.getPricePerHour());
+        meetingRoomRepository.save(foundMeetingRoom);
         return foundMeetingRoom.toResponseEntity();
     }
 
