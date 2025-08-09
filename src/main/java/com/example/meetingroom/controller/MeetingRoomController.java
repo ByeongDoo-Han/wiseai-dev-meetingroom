@@ -3,6 +3,7 @@ package com.example.meetingroom.controller;
 import com.example.meetingroom.dto.meetingRoom.MeetingRoomRequestDto;
 import com.example.meetingroom.service.MeetingRoomService;
 import com.example.meetingroom.util.CustomResponseEntity;
+import com.example.meetingroom.util.ResponseUtil;
 import com.example.meetingroom.util.SuccessMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -82,12 +83,9 @@ public class MeetingRoomController {
     )
     @GetMapping("/meeting-rooms")
     public ResponseEntity<CustomResponseEntity<Object>> getAllMeetingRooms() {
-        return ResponseEntity.ok().body(
-            CustomResponseEntity.builder()
-                .success(true)
-                .httpStatus(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getHttpStatus())
-                .message(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getMessage())
-                .data(meetingRoomService.getAllMeetingRooms()).build()
+        return ResponseUtil.success(
+            meetingRoomService.getAllMeetingRooms(),
+            SuccessMessage.GET_MEETING_ROOM_SUCCESS
         );
     }
 
@@ -142,11 +140,10 @@ public class MeetingRoomController {
         })
     @PostMapping("/meeting-rooms")
     public ResponseEntity<CustomResponseEntity<Object>> createMeetingRoom(@RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
-        return ResponseEntity.ok().body(CustomResponseEntity.builder()
-            .data(meetingRoomService.createMeetingRoom(meetingRoomRequestDto))
-            .httpStatus(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getHttpStatus())
-            .message(SuccessMessage.GET_MEETING_ROOM_SUCCESS.getMessage())
-            .build());
+        return ResponseUtil.success(
+            meetingRoomService.createMeetingRoom(meetingRoomRequestDto),
+            SuccessMessage.CREATE_MEETING_ROOM_SUCCESS
+        );
     }
 
     @Operation(summary = "회의실 정보 업데이트", description = "특정 ID의 회의실 정보를 업데이트합니다.",
@@ -159,11 +156,10 @@ public class MeetingRoomController {
     @PutMapping("/meeting-rooms/{id}")
     public ResponseEntity<CustomResponseEntity<Object>> updateMeetingRoom(@PathVariable Long id,
                                                                     @RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
-        return ResponseEntity.ok().body(CustomResponseEntity.builder()
-            .data(meetingRoomService.updateMeetingRoom(id, meetingRoomRequestDto))
-            .httpStatus(SuccessMessage.UPDATE_MEETING_ROOM_SUCCESS.getHttpStatus())
-            .message(SuccessMessage.UPDATE_MEETING_ROOM_SUCCESS.getMessage())
-            .build());
+        return ResponseUtil.success(
+            meetingRoomService.updateMeetingRoom(id,meetingRoomRequestDto),
+            SuccessMessage.UPDATE_MEETING_ROOM_SUCCESS
+        );
     }
 
     @Operation(summary = "회의실 삭제", description = "특정 ID의 회의실을 시스템에서 삭제합니다.",
@@ -175,10 +171,9 @@ public class MeetingRoomController {
     @DeleteMapping("/meeting-rooms/{id}")
     public ResponseEntity<CustomResponseEntity<Object>> deleteMeetingRoom(@PathVariable Long id) {
         meetingRoomService.deleteMeetingRoom(id);
-        return ResponseEntity.ok().body(CustomResponseEntity.builder()
-            .data(null)
-            .message(SuccessMessage.DELETE_MEETING_ROOM_SUCCESS.getMessage())
-            .httpStatus(SuccessMessage.DELETE_MEETING_ROOM_SUCCESS.getHttpStatus())
-            .build());
+        return ResponseUtil.success(
+            null,
+            SuccessMessage.DELETE_MEETING_ROOM_SUCCESS
+        );
     }
 }
