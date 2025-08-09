@@ -103,9 +103,10 @@ public class ReservationService {
             request.getEndTime(),
             calculateTotalPrice(request.getStartTime(), request.getEndTime(), meetingRoom.getPricePerHour()),
             meetingRoom);
-
+        reservationRepository.save(reservation);
         return reservation.toReservationResponseEntity();
     }
+
     private BigDecimal calculateTotalPrice(LocalDateTime startTime, LocalDateTime endTime, BigDecimal pricePerHour){
         Duration duration = Duration.between(startTime, endTime);
         long minutes = duration.toMinutes();
@@ -113,5 +114,16 @@ public class ReservationService {
         BigDecimal sixty = new BigDecimal(60);
         BigDecimal hours = totalMinutes.divide(sixty, 2, RoundingMode.HALF_UP);
         return hours.multiply(pricePerHour);
+    }
+
+    @Transactional
+    public void cancelReservation(final String username, final Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
+            () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
+        );
+        if(!reservation.getMember().getUsername().equals(username)){
+            throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+        reservationRepository.deleteById(reservationId);
     }
 }

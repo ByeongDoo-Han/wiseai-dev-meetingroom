@@ -149,7 +149,58 @@ class ReservationServiceTest {
     @Nested
     @DisplayName("예약 취소 테스트")
     class CancelReservationTest {
-        // ... 기존 취소 테스트 ...
+
+        @Test
+        @DisplayName("성공")
+        void cancel_success() {
+            // given
+            Long reservationId = 1L;
+
+            // 취소할 예약 조회는 성공해야 함
+            given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+            // when
+            reservationService.cancelReservation(member.getUsername(), reservationId);
+
+            // then
+            // reservationRepository.delete()가 올바른 reservation 객체를 가지고 1번 호출되었는지 검증
+            verify(reservationRepository).deleteById(reservation.getId());
+        }
+
+        @Test
+        @DisplayName("실패 - 다른 사용자의 예약 취소")
+        void cancel_fail_access_denied() {
+            // given
+            Long reservationId = 1L;
+            Member anotherMember = Member.builder().id(2L).username("anotherUser").build();
+
+            // 예약은 존재하지만, 'testuser'의 소유임
+            given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
+
+            // when & then
+            // 예외 발생을 검증
+            assertThatThrownBy(() -> reservationService.cancelReservation(anotherMember.getUsername(), reservationId))
+                    .isInstanceOf(CustomException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.HANDLE_ACCESS_DENIED);
+
+            // 접근이 거부되었으므로 delete 메소드가 절대 호출되지 않았는지 검증
+            verify(reservationRepository, never()).deleteById(reservationId);
+        }
+
+        @Test
+        @DisplayName("실패 - 존재하지 않는 예약 취소")
+        void cancel_fail_reservation_not_found() {
+            // given
+            Long reservationId = 99L; // 존재하지 않는 예약 ID
+
+            // 존재하지 않는 ID로 조회 시 Optional.empty()를 반환하도록 설정
+            given(reservationRepository.findById(reservationId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> reservationService.cancelReservation(member.getUsername(), reservationId))
+                    .isInstanceOf(CustomException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.RESERVATION_NOT_FOUND);
+        }
     }
 
     @Nested
