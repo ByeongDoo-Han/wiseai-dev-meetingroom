@@ -33,4 +33,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                                        @Param("meetingRoomId") Long meetingRoomId,
                                        @Param("startTime") LocalDateTime startTime,
                                        @Param("endTime") LocalDateTime endTime);
+
+    long countByMeetingRoomIdAndStartTime(Long meetingRoomId, LocalDateTime startTime);
 }
