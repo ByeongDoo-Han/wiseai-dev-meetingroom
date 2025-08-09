@@ -11,7 +11,7 @@ public enum ErrorCode {
     // Common Errors
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "Invalid Input Value"),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "C002", "Method Not Allowed"),
-    HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C003", "Access is Denied"),
+    HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C003", "권한이 없습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C004", "Server Error"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "C005", "Resource not found"),
 
