@@ -11,7 +11,7 @@ public enum ErrorCode {
     // Common Errors
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "Invalid Input Value"),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "C002", "Method Not Allowed"),
-    HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C003", "Access is Denied"),
+    HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C003", "권한이 없습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C004", "Server Error"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "C005", "Resource not found"),
 
@@ -32,7 +32,10 @@ public enum ErrorCode {
     PAYMENT_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "P003", "Payment has already been processed for this reservation."),
 
     // User Errors
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "User not found");
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
+    USER_ALREADY_EXISTED(HttpStatus.CONFLICT, "U002", "이미 가입된 유저입니다."),
+    USER_NOT_MATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "비밀번호가 일치하지 않습니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
