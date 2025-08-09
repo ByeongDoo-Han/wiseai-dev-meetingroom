@@ -44,4 +44,12 @@ public class MeetingRoom {
             .pricePerHour(getPricePerHour())
             .build();
     }
+
+    public void update(
+        String name, int capacity, BigDecimal pricePerHour
+    ){
+        this.name = name;
+        this.capacity = capacity;
+        this.pricePerHour = pricePerHour;
+    }
 }
