@@ -12,12 +12,6 @@ public enum SuccessMessage {
     CREATE_MEETING_ROOM_SUCCESS(HttpStatus.CREATED, "회의실 생성 성공"),
     UPDATE_MEETING_ROOM_SUCCESS(HttpStatus.CREATED, "회의실 수정 성공"),
     DELETE_MEETING_ROOM_SUCCESS(HttpStatus.NO_CONTENT, "회의실 삭제 성공"),
-    CREATE_RESERVATION_SUCCESS(HttpStatus.CREATED, "회의실 예약 성공"),
-    GET_RESERVATION_SUCCESS(HttpStatus.OK, "회의실 예약 조회 성공"),
-    UPDATE_RESERVATION_SUCCESS(HttpStatus.OK, "회의실 예약 수정 성공"),
-    DELETE_RESERVATION_SUCCESS(HttpStatus.NO_CONTENT, "회의실 예약 삭제 성공"),
-    REGISTER_MEMBER_SUCCESS(HttpStatus.CREATED, "회원가입 성공"),
-    LOGIN_MEMBER_SUCCESS(HttpStatus.OK, "로그인 성공")
     ;
 
     private final HttpStatus httpStatus;
