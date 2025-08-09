@@ -27,7 +27,8 @@ public class Member {
     private Role role;
 
     @Builder
-    public Member(String username, String password, Role role){
+    public Member(Long id, String username, String password, Role role){
+        this.id = id;
         this.password = password;
         this.username = username;
         this.role = role;

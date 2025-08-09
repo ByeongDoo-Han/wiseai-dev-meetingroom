@@ -40,10 +40,4 @@ public class MemberDetails implements UserDetails, Serializable {
     public String getPassword() {
         return null;
     }
-
-    @Override
-    public String getUsername() {
-        return null;
-    }
-
 }
