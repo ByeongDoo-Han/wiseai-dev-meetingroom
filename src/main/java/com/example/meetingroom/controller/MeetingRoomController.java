@@ -6,6 +6,7 @@ import com.example.meetingroom.util.CustomResponseEntity;
 import com.example.meetingroom.util.ResponseUtil;
 import com.example.meetingroom.util.SuccessMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,9 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Meeting Room API", description = "회의실 정보 조회 및 관리 API")
+@Tag(name = "회의실", description = "회의실 정보 조회 및 관리 API")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/meeting-rooms") // 클래스 레벨로 경로 이동
 public class MeetingRoomController {
 
     private final MeetingRoomService meetingRoomService;
@@ -81,7 +83,7 @@ public class MeetingRoomController {
             )
         }
     )
-    @GetMapping("/meeting-rooms")
+    @GetMapping // 경로에서 /meeting-rooms 제거
     public ResponseEntity<CustomResponseEntity<Object>> getAllMeetingRooms() {
         return ResponseUtil.success(
             meetingRoomService.getAllMeetingRooms(),
@@ -138,7 +140,7 @@ public class MeetingRoomController {
                             """
                     ))),
         })
-    @PostMapping("/meeting-rooms")
+    @PostMapping // 경로에서 /meeting-rooms 제거
     public ResponseEntity<CustomResponseEntity<Object>> createMeetingRoom(@RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
         return ResponseUtil.success(
             meetingRoomService.createMeetingRoom(meetingRoomRequestDto),
@@ -148,13 +150,22 @@ public class MeetingRoomController {
 
     @Operation(summary = "회의실 정보 업데이트", description = "특정 ID의 회의실 정보를 업데이트합니다.",
         responses = {
-            @ApiResponse(responseCode = "200", description = "회의실 정보 업데이트 성공"),
-            @ApiResponse(responseCode = "404", description = "회의실을 찾을 수 없음"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 (예: 유효성 검사 실패)"),
-            @ApiResponse(responseCode = "500", description = "서버 오류 발생")
+            @ApiResponse(responseCode = "200", description = "회의실 정보 업데이트 성공",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class))),
+            @ApiResponse(responseCode = "404", description = "회의실을 찾을 수 없음",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 (예: 유효성 검사 실패)",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class)))
         })
-    @PutMapping("/meeting-rooms/{id}")
-    public ResponseEntity<CustomResponseEntity<Object>> updateMeetingRoom(@PathVariable Long id,
+    @PutMapping("/{id}")
+    public ResponseEntity<CustomResponseEntity<Object>> updateMeetingRoom(
+                                                                    @Parameter(description = "업데이트할 회의실의 ID") @PathVariable Long id,
                                                                     @RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
         return ResponseUtil.success(
             meetingRoomService.updateMeetingRoom(id,meetingRoomRequestDto),
@@ -164,12 +175,19 @@ public class MeetingRoomController {
 
     @Operation(summary = "회의실 삭제", description = "특정 ID의 회의실을 시스템에서 삭제합니다.",
         responses = {
-            @ApiResponse(responseCode = "200", description = "회의실 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "회의실을 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "서버 오류 발생")
+            @ApiResponse(responseCode = "200", description = "회의실 삭제 성공",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class))),
+            @ApiResponse(responseCode = "404", description = "회의실을 찾을 수 없음",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생",
+                content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CustomResponseEntity.class)))
         })
-    @DeleteMapping("/meeting-rooms/{id}")
-    public ResponseEntity<CustomResponseEntity<Object>> deleteMeetingRoom(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CustomResponseEntity<Object>> deleteMeetingRoom(
+                                                                    @Parameter(description = "삭제할 회의실의 ID") @PathVariable Long id) {
         meetingRoomService.deleteMeetingRoom(id);
         return ResponseUtil.success(
             null,
