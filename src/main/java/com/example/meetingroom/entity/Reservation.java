@@ -2,67 +2,77 @@ package com.example.meetingroom.entity;
 
 import com.example.meetingroom.dto.reservation.ReservationResponse;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus;
-
-    @Column(precision = 10, nullable = false)
-    private BigDecimal totalAmount;
-
-    @ManyToOne
-    @JoinColumn(name = "member_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "meeting_room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_room_id", nullable = false)
     private MeetingRoom meetingRoom;
 
-    @Builder
-    public Reservation(final Long id, final LocalDateTime startTime, final LocalDateTime endTime, final PaymentStatus paymentStatus, final BigDecimal totalAmount, final Member member, final MeetingRoom meetingRoom) {
-        this.id = id;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.paymentStatus = paymentStatus;
-        this.totalAmount = totalAmount;
-        this.member = member;
-        this.meetingRoom = meetingRoom;
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = false)
+    private LocalDateTime endTime;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentStatus paymentStatus;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    public void updatePaymentStatus(PaymentStatus newStatus) {
+        this.paymentStatus = newStatus;
     }
 
-    public void update(LocalDateTime startTime, LocalDateTime endTime, BigDecimal totalAmount, MeetingRoom meetingRoom){
-            this.startTime = startTime;
-            this.endTime = endTime;
-            this.totalAmount = totalAmount;
-            this.meetingRoom = meetingRoom;
-    }
-
-    public ReservationResponse toReservationResponseEntity(){
+    public ReservationResponse toReservationResponseEntity() {
         return ReservationResponse.builder()
             .id(id)
-            .memberId(member.getId())
-            .meetingRoomId(meetingRoom.getId())
+            .username(member.getUsername())
+            .meetingRoomName(meetingRoom.getName())
             .startTime(startTime)
             .endTime(endTime)
             .totalAmount(totalAmount)
-            .paymentStatus(PaymentStatus.PENDING)
+            .paymentStatus(paymentStatus) // 실제 paymentStatus 사용
             .build();
     }
 
+    public void update(LocalDateTime newStartTime, LocalDateTime newEndTime, BigDecimal newTotalAmount, MeetingRoom newMeetingRoom) {
+        this.startTime = newStartTime;
+        this.endTime = newEndTime;
+        this.totalAmount = newTotalAmount;
+        this.meetingRoom = newMeetingRoom;
+    }
+
+    public BigDecimal calculateTotalPrice(BigDecimal pricePerHour) {
+        long hours = ChronoUnit.HOURS.between(this.startTime, this.endTime);
+        long minutes = ChronoUnit.MINUTES.between(this.startTime, this.endTime) % 60;
+        BigDecimal totalHours = BigDecimal.valueOf(hours).add(BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_HALF_UP));
+        return pricePerHour.multiply(totalHours);
+    }
 }
