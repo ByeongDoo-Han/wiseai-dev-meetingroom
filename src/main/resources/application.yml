@@ -7,12 +7,12 @@ spring:
       host: meetingroom-redis
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
-        format_sql: true
-        show_sql: true
-        use_sql_comments: true
+        format_sql: false
+        show_sql: false
+        use_sql_comments: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 springdoc:
@@ -29,5 +29,9 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 jwt:
+  secret:
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 86400
+encryption:
+  aes:
+    key:
