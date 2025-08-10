@@ -59,11 +59,11 @@ public class SimplePaymentGateway implements PaymentGateway {
         }
 
         return PaymentResult.builder()
-                .paymentId(paymentId)
-                .status(isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED)
-                .amount(request.getAmount())
-                .createdAt(LocalDateTime.now())
-                .message(isSuccess ? "간편결제 성공" : "간편결제 실패")
-                .build();
+            .paymentId(paymentId)
+            .status(isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED)
+            .amount(request.getAmount())
+            .createdAt(LocalDateTime.now())
+            .message(isSuccess ? "간편결제 성공" : "간편결제 실패")
+            .build();
     }
 }

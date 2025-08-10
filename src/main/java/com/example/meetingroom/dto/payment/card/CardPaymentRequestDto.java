@@ -11,7 +11,7 @@ public class CardPaymentRequestDto {
     private BigDecimal totalAmount;
 
     @Builder
-    public CardPaymentRequestDto(String cardNumber, BigDecimal totalAmount){
+    public CardPaymentRequestDto(String cardNumber, BigDecimal totalAmount) {
         this.cardNumber = cardNumber;
         this.totalAmount = totalAmount;
     }

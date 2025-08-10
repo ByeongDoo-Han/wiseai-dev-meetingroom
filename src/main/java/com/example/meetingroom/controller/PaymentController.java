@@ -18,6 +18,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,22 +33,18 @@ public class PaymentController {
 
     private final PaymentsService paymentsService;
 
-    @Operation(summary = "결제 요청", description = "지정된 결제 수단으로 결제를 시도합니다.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "결제 성공 또는 처리 중 (가상계좌 등)"),
-        @ApiResponse(responseCode = "400", description = "잘못된 요청 (유효성 검사 실패)", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "404", description = "예약을 찾을 수 없음 / 지원하지 않는 결제 방식", content = @Content(schema = @Schema(hidden = true))),
-        @ApiResponse(responseCode = "500", description = "결제사 연동 오류 또는 서버 오류", content = @Content(schema = @Schema(hidden = true)))
-    })
-    @PostMapping("/process")
-    public ResponseEntity<CustomResponseEntity<PaymentResult>> processPayment(
-        @AuthenticationPrincipal MemberDetails memberDetails,
-        @Valid @RequestBody PaymentRequest request) {
 
+    @Operation(summary = "결제 상태 조회", description = "결제 ID를 통해 결제 상태를 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "결제 상태 조회 성공"),
+        @ApiResponse(responseCode = "404", description = "결제 정보를 찾을 수 없음", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @GetMapping("/{paymentId}/status")
+    public ResponseEntity<CustomResponseEntity<com.example.meetingroom.entity.PaymentStatus>> getPaymentStatus(
+        @PathVariable Long paymentId) {
         return ResponseUtil.success(
-            paymentsService.processPayment(request, memberDetails.getUsername()),
-            SuccessMessage.PAYMENT_PROCESS_SUCCESS
+            paymentsService.getPaymentStatus(paymentId),
+            SuccessMessage.PAYMENT_STATUS_RETRIEVED_SUCCESS
         );
     }
 }

@@ -8,11 +8,11 @@ public enum PaymentStatus {
 
     private final String status;
 
-    PaymentStatus(final String status){
+    PaymentStatus(final String status) {
         this.status = status;
     }
 
-    public String getStatus(){
+    public String getStatus() {
         return status;
     }
 }

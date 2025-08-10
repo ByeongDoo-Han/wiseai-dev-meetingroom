@@ -11,9 +11,9 @@ public class RegisterMemberResponseDto {
     private Role role;
 
     @Builder
-    public RegisterMemberResponseDto(Long id, String username, Role role){
+    public RegisterMemberResponseDto(Long id, String username, Role role) {
         this.id = id;
         this.username = username;
-        this.role =role;
+        this.role = role;
     }
 }

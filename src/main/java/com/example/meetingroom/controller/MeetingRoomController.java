@@ -165,10 +165,10 @@ public class MeetingRoomController {
         })
     @PutMapping("/{id}")
     public ResponseEntity<CustomResponseEntity<Object>> updateMeetingRoom(
-                                                                    @Parameter(description = "업데이트할 회의실의 ID") @PathVariable Long id,
-                                                                    @RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
+        @Parameter(description = "업데이트할 회의실의 ID") @PathVariable Long id,
+        @RequestBody MeetingRoomRequestDto meetingRoomRequestDto) {
         return ResponseUtil.success(
-            meetingRoomService.updateMeetingRoom(id,meetingRoomRequestDto),
+            meetingRoomService.updateMeetingRoom(id, meetingRoomRequestDto),
             SuccessMessage.UPDATE_MEETING_ROOM_SUCCESS
         );
     }
@@ -187,7 +187,7 @@ public class MeetingRoomController {
         })
     @DeleteMapping("/{id}")
     public ResponseEntity<CustomResponseEntity<Object>> deleteMeetingRoom(
-                                                                    @Parameter(description = "삭제할 회의실의 ID") @PathVariable Long id) {
+        @Parameter(description = "삭제할 회의실의 ID") @PathVariable Long id) {
         meetingRoomService.deleteMeetingRoom(id);
         return ResponseUtil.success(
             null,

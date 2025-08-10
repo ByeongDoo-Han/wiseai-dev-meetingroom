@@ -35,9 +35,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         + "AND r.endTime > :startTime "
         + "AND r.startTime < :endTime")
     boolean existDuplicatedReservationExcludingItself(@Param("reservationId") Long reservationId,
-                                       @Param("meetingRoomId") Long meetingRoomId,
-                                       @Param("startTime") LocalDateTime startTime,
-                                       @Param("endTime") LocalDateTime endTime);
+                                                      @Param("meetingRoomId") Long meetingRoomId,
+                                                      @Param("startTime") LocalDateTime startTime,
+                                                      @Param("endTime") LocalDateTime endTime);
 
     long countByMeetingRoomIdAndStartTime(Long meetingRoomId, LocalDateTime startTime);
 }

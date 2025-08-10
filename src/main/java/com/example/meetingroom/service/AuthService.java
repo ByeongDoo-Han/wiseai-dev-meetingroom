@@ -19,6 +19,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+
     @Transactional
     public RegisterMemberResponseDto registerMember(final RegisterMemberRequestDto registerMemberDto) {
         if (memberRepository.findMemberByUsername(registerMemberDto.getUsername()).isPresent()) {
@@ -39,7 +40,7 @@ public class AuthService {
         Member foundMember = memberRepository.findMemberByUsername(loginMemberRequestDto.getUsername()).orElseThrow(
             () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
-        if(!passwordEncoder.matches(loginMemberRequestDto.getPassword(), foundMember.getPassword())){
+        if (!passwordEncoder.matches(loginMemberRequestDto.getPassword(), foundMember.getPassword())) {
             throw new CustomException(ErrorCode.USER_NOT_MATCHED_PASSWORD);
         }
         return tokenService.login(foundMember);

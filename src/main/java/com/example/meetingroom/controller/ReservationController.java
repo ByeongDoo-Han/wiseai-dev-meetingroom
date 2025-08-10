@@ -1,8 +1,11 @@
 package com.example.meetingroom.controller;
 
+import com.example.meetingroom.dto.payment.PaymentRequest;
+import com.example.meetingroom.dto.payment.PaymentResult;
 import com.example.meetingroom.dto.reservation.ReservationRequest;
 import com.example.meetingroom.dto.reservation.ReservationResponse;
 import com.example.meetingroom.dto.reservation.ReservationUpdateRequest;
+import com.example.meetingroom.service.PaymentsService;
 import com.example.meetingroom.service.ReservationService;
 import com.example.meetingroom.util.CustomResponseEntity;
 import com.example.meetingroom.util.MemberDetails;
@@ -31,6 +34,9 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
+    private final PaymentsService paymentsService;
+
+
     @Operation(summary = "회의실 예약 생성", description = "특정 회의실을 지정된 시간 동안 예약합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "예약 생성 성공"),
@@ -40,8 +46,8 @@ public class ReservationController {
     })
     @PostMapping
     public ResponseEntity<CustomResponseEntity<ReservationResponse>> createReservation(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
-            @Valid @RequestBody ReservationRequest request) {
+        @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
+        @Valid @RequestBody ReservationRequest request) {
         return ResponseUtil.success(
             reservationService.createReservation(memberDetails.getUsername(), request),
             SuccessMessage.CREATE_RESERVATION_SUCCESS
@@ -53,7 +59,7 @@ public class ReservationController {
         @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping
-    public ResponseEntity<CustomResponseEntity<List<ReservationResponse>>> getAllReservation(){
+    public ResponseEntity<CustomResponseEntity<List<ReservationResponse>>> getAllReservation() {
         return ResponseUtil.success(
             reservationService.getAllReservation(),
             SuccessMessage.GET_RESERVATION_SUCCESS
@@ -72,9 +78,9 @@ public class ReservationController {
         @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
         @Parameter(description = "수정할 예약의 ID") @PathVariable Long id,
         @Valid @RequestBody ReservationUpdateRequest request
-    ){
+    ) {
         return ResponseUtil.success(
-            reservationService.updateReservation(memberDetails.getUsername(),request),
+            reservationService.updateReservation(memberDetails.getUsername(), request),
             SuccessMessage.UPDATE_RESERVATION_SUCCESS
         );
     }
@@ -87,8 +93,8 @@ public class ReservationController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<CustomResponseEntity<Void>> cancelReservation(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
-            @Parameter(description = "취소할 예약의 ID") @PathVariable Long id) {
+        @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
+        @Parameter(description = "취소할 예약의 ID") @PathVariable Long id) {
         reservationService.cancelReservation(memberDetails.getUsername(), id);
         return ResponseUtil.success(
             null,
@@ -96,20 +102,24 @@ public class ReservationController {
         );
 
     }
-//    @DeleteMapping("/{reservationId}")
-//    public ResponseEntity<CustomResponseEntity<Void>> cancelReservation(
-//            @AuthenticationPrincipal MemberDetails memberDetails,
-//            @PathVariable Long reservationId) {
-//        reservationService.cancelReservation(memberDetails.getMember(), reservationId);
-//        return CustomResponseEntity.toResponseEntity(SuccessMessage.RESERVATION_CANCEL_SUCCESS);
-//    }
 
-//    @PatchMapping("/{reservationId}")
-//    public ResponseEntity<CustomResponseEntity<ReservationResponse>> updateReservation(
-//            @AuthenticationPrincipal MemberDetails memberDetails,
-//            @PathVariable Long reservationId,
-//            @Valid @RequestBody ReservationRequest request) {
-//        ReservationResponse response = reservationService.updateReservation(memberDetails.getMember(), reservationId, request);
-//        return CustomResponseEntity.toResponseEntity(SuccessMessage.RESERVATION_UPDATE_SUCCESS, response);
-//    }
+    @Operation(summary = "결제 요청", description = "지정된 결제 수단으로 결제를 시도합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "결제 성공 또는 처리 중 (가상계좌 등)"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 (유효성 검사 실패)", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "404", description = "예약을 찾을 수 없음 / 지원하지 않는 결제 방식", content = @Content(schema = @Schema(hidden = true))),
+        @ApiResponse(responseCode = "500", description = "결제사 연동 오류 또는 서버 오류", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @PostMapping("/{id}/payment")
+    public ResponseEntity<CustomResponseEntity<PaymentResult>> processPayment(
+        @AuthenticationPrincipal MemberDetails memberDetails,
+        @Valid @RequestBody PaymentRequest request,
+        @PathVariable Long id) {
+
+        return ResponseUtil.success(
+            paymentsService.processPayment(id, request, memberDetails.getUsername()),
+            SuccessMessage.PAYMENT_PROCESS_SUCCESS
+        );
+    }
 }

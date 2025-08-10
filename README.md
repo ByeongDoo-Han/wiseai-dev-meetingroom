@@ -28,8 +28,6 @@
 |     | 예약 하나 조회  | `GET`    | `/reservation/{id}`            |            |
 |     | 예약 취소     | `DELETE` | `/reservation/{id}`            | user       |
 |     | 결제 처리     | `POST`   | `/reservation/{id}/payment`    | user       |
-| 결제  | 결제 상태 조회  | `GET`    | `/payments/{paymentId}/status` | user       |
-|     | 결제 내역 조회  | `GET`    | `/payments` | user       |
 | 웹   | 결제사 별 웹훅  | `POST`   | `/webhooks/payments/{provider}` |           |
 
 

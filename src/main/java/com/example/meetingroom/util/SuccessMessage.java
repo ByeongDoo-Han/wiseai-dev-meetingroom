@@ -19,16 +19,17 @@ public enum SuccessMessage {
     PAYMENT_PROCESS_SUCCESS(HttpStatus.OK, "결제 성공"),
     REGISTER_MEMBER_SUCCESS(HttpStatus.CREATED, "회원가입 성공"),
     LOGIN_MEMBER_SUCCESS(HttpStatus.OK, "로그인 성공"),
-    WEBHOOK_RECEIVED_SUCCESS(HttpStatus.OK, "웹훅 수신 및 처리 성공")
-    ;
+    WEBHOOK_RECEIVED_SUCCESS(HttpStatus.OK, "웹훅 수신 및 처리 성공"),
+    PAYMENT_STATUS_RETRIEVED_SUCCESS(HttpStatus.OK, "결제 상태 조회 성공");
 
     private final HttpStatus httpStatus;
     private final String message;
 
-    public String getMessage(){
+    public String getMessage() {
         return this.message;
     }
-    public HttpStatus getHttpStatus(){
+
+    public HttpStatus getHttpStatus() {
         return this.httpStatus;
     }
 }

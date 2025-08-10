@@ -39,14 +39,13 @@ public enum ErrorCode {
     // User Errors
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
     USER_ALREADY_EXISTED(HttpStatus.CONFLICT, "U002", "이미 가입된 유저입니다."),
-    USER_NOT_MATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "비밀번호가 일치하지 않습니다.")
-    ;
+    USER_NOT_MATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "비밀번호가 일치하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
 
-    public String getMessage(){
+    public String getMessage() {
         return this.message;
     }
 }

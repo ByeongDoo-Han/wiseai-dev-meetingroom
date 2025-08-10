@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 public class TimeSlotValidator implements ConstraintValidator<ValidReservationTime, LocalDateTime> {
 
     @Override
-    public boolean isValid(LocalDateTime time, ConstraintValidatorContext context){
-        if(time==null){
+    public boolean isValid(LocalDateTime time, ConstraintValidatorContext context) {
+        if (time == null) {
             return true;
         }
 

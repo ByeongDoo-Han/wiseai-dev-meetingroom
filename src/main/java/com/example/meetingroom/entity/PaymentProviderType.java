@@ -6,11 +6,12 @@ public enum PaymentProviderType {
     VIRTUAL_ACCOUNT("가상계좌 결제");
 
     private final String method;
+
     PaymentProviderType(final String method) {
         this.method = method;
     }
 
-    public String getMethod(){
+    public String getMethod() {
         return method;
     }
 }

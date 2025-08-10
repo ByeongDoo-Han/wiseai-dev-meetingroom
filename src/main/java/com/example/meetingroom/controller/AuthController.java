@@ -34,7 +34,7 @@ public class AuthController {
         @ApiResponse(responseCode = "409", description = "이미 존재하는 사용자 ID", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/register")
-    public ResponseEntity<CustomResponseEntity<Object>> registerMember(@RequestBody RegisterMemberRequestDto registerMemberDto){
+    public ResponseEntity<CustomResponseEntity<Object>> registerMember(@RequestBody RegisterMemberRequestDto registerMemberDto) {
         return ResponseUtil.success(
             authService.registerMember(registerMemberDto),
             SuccessMessage.REGISTER_MEMBER_SUCCESS
@@ -47,7 +47,7 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "인증 실패 (ID 또는 비밀번호 오류)", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> loginMember(@RequestBody LoginMemberRequestDto loginMemberRequestDto){
+    public ResponseEntity<TokenResponseDto> loginMember(@RequestBody LoginMemberRequestDto loginMemberRequestDto) {
         return authService.loginMember(loginMemberRequestDto);
     }
 
@@ -57,7 +57,7 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/logout")
-    public ResponseEntity<Void> logoutMember(HttpServletRequest request){
+    public ResponseEntity<Void> logoutMember(HttpServletRequest request) {
         return tokenService.logout(request);
     }
 }

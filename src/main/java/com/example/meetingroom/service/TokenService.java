@@ -25,11 +25,9 @@ import java.util.List;
 public class TokenService {
     private final RedissonClient redissonClient;
     private final TokenProvider tokenProvider;
-    private static final long TOKEN_EXPIRE_SECONDS = 60*60;
-    private static final long REFRESH_TOKEN_EXPIRE_SECONDS = 60*60*24;
+    private static final long REFRESH_TOKEN_EXPIRE_SECONDS = 60 * 60 * 24;
     private static final String REFRESH_TOKEN_PREFIX = "refreshToken:";
     private static final String REFRESH_TOKEN = "refreshToken";
-    private static final String ACCESS_TOKEN_PREFIX = "accessToken:";
     private static final String GRANT_TYPE = "Bearer ";
     private static final String STRICT = "Strict";
     private static final String AUTH_HEADER = "Authorization";
@@ -37,7 +35,7 @@ public class TokenService {
     @Transactional
     public ResponseEntity<TokenResponseDto> login(final Member foundMember) {
         String username = foundMember.getUsername();
-        String role = "ROLE_"+foundMember.getRole().name();
+        String role = "ROLE_" + foundMember.getRole().name();
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
             username, null,
             List.of(new SimpleGrantedAuthority(role))
@@ -48,7 +46,7 @@ public class TokenService {
     }
 
     @Transactional
-    public ResponseEntity<Void> logout(final HttpServletRequest request){
+    public ResponseEntity<Void> logout(final HttpServletRequest request) {
         String authHeader = request.getHeader(AUTH_HEADER);
         if (authHeader == null || !authHeader.startsWith(GRANT_TYPE)) {
             return ResponseEntity.badRequest().build();
@@ -59,8 +57,8 @@ public class TokenService {
         return ResponseEntity.ok().build();
     }
 
-    private void saveRefreshToken(final String email, final String refreshToken){
-        RBucket<String> bucket = redissonClient.getBucket(REFRESH_TOKEN_PREFIX+email);
+    private void saveRefreshToken(final String email, final String refreshToken) {
+        RBucket<String> bucket = redissonClient.getBucket(REFRESH_TOKEN_PREFIX + email);
         bucket.set(refreshToken, Duration.ofSeconds(REFRESH_TOKEN_EXPIRE_SECONDS));
     }
 
@@ -87,7 +85,7 @@ public class TokenService {
                     .message("Refresh token is missing")
                     .build());
         }
-        if(!refreshToken.equals(oldRefreshToken)){
+        if (!refreshToken.equals(oldRefreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(TokenResponseDto.builder()
                     .message("유효하지 않은 RefreshToken입니다.")

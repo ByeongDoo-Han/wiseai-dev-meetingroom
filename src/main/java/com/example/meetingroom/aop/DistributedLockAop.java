@@ -24,7 +24,7 @@ public class DistributedLockAop {
     private final RedissonClient redissonClient;
 
     @Around("@annotation(com.example.meetingroom.aop.DistributedLock)")
-    public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable{
+    public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
@@ -34,12 +34,12 @@ public class DistributedLockAop {
             distributedLock.key());
         RLock rLock = redissonClient.getLock(key);
 
-        try{
+        try {
             boolean available = rLock.tryLock(
                 distributedLock.waitTime(),
                 distributedLock.leaseTime(),
                 distributedLock.timeUnit());
-            if(!available){
+            if (!available) {
                 return false;
             }
             Object result = aopForTransaction.proceed(joinPoint);
@@ -54,7 +54,7 @@ public class DistributedLockAop {
                 }
             });
             return result;
-        }catch (Exception e){
+        } catch (Exception e) {
             if (rLock.isLocked() && rLock.isHeldByCurrentThread()) {
                 rLock.unlock();
                 log.info("Redisson Lock unlocked due to exception: {}", key);

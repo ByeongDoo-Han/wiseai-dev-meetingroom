@@ -27,14 +27,14 @@ public class Member {
     private Role role;
 
     @Builder
-    public Member(Long id, String username, String password, Role role){
+    public Member(Long id, String username, String password, Role role) {
         this.id = id;
         this.password = password;
         this.username = username;
         this.role = role;
     }
 
-    public RegisterMemberResponseDto toRegistMemberResponseEntity(){
+    public RegisterMemberResponseDto toRegistMemberResponseEntity() {
         return RegisterMemberResponseDto.builder()
             .id(this.id)
             .username(this.username)

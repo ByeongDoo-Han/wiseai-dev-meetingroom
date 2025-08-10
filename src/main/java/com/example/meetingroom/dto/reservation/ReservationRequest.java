@@ -32,7 +32,7 @@ public class ReservationRequest {
     private LocalDateTime endTime;
 
     @Builder
-    public ReservationRequest(Long meetingRoomId, LocalDateTime startTime, LocalDateTime endTime){
+    public ReservationRequest(Long meetingRoomId, LocalDateTime startTime, LocalDateTime endTime) {
         this.meetingRoomId = meetingRoomId;
         this.startTime = startTime;
         this.endTime = endTime;

@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 public class VirtualAccountPaymentGateway implements PaymentGateway {
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
     private static final String API_URL = "http://mock-pg-c-virtual:8080/v1/virtualaccount";
     private static final String CLIENT_ID = "C_CLIENT_ID";
     private static final String CLIENT_SECRET = "C_CLIENT_SECRET";
@@ -34,9 +33,9 @@ public class VirtualAccountPaymentGateway implements PaymentGateway {
     @Override
     public PaymentResult pay(PaymentRequest request) {
         VirtualAccountApiRequest apiRequest = VirtualAccountApiRequest.builder()
-                .product("회의실 예약")
-                .price(request.getAmount())
-                .build();
+            .product("회의실 예약")
+            .price(request.getAmount())
+            .build();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
@@ -50,18 +49,18 @@ public class VirtualAccountPaymentGateway implements PaymentGateway {
         boolean isSuccess = response != null && "WAITING".equals(response.getStatus());
 
         String message = "";
-        if(isSuccess) {
+        if (isSuccess) {
             message = String.format("가상계좌 발급 성공: %s %s", response.getBank(), response.getAccountNum());
         } else {
             message = "가상계좌 발급 실패";
         }
 
         return PaymentResult.builder()
-                .paymentId(isSuccess ? response.getAccountNum() : null)
-                .status(isSuccess ? PaymentStatus.PENDING : PaymentStatus.FAILED)
-                .createdAt(LocalDateTime.now())
-                .amount(request.getAmount())
-                .message(message)
-                .build();
+            .paymentId(isSuccess ? response.getAccountNum() : null)
+            .status(isSuccess ? PaymentStatus.PENDING : PaymentStatus.FAILED)
+            .createdAt(LocalDateTime.now())
+            .amount(request.getAmount())
+            .message(message)
+            .build();
     }
 }
