@@ -47,20 +47,16 @@ public class JwtFilter extends OncePerRequestFilter {
                 LOGGER.info("Authenticated user: {}, uri: {}", authentication.getName(), request.getRequestURI());
             } catch (SecurityException | MalformedJwtException e) {
                 LOGGER.warn("Invalid JWT signature, uri: {}", request.getRequestURI());
-                setErrorResponse(response, HttpStatus.UNAUTHORIZED, "잘못된 JWT 서명입니다.");
-                return; // 인증 실패 시 요청 처리 중단
+                throw e; // 인증 실패 시 요청 처리 중단
             } catch (ExpiredJwtException e) {
                 LOGGER.warn("Expired JWT token, uri: {}", request.getRequestURI());
-                setErrorResponse(response, HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다.");
-                return; // 인증 실패 시 요청 처리 중단
+                throw e; // 인증 실패 시 요청 처리 중단
             } catch (UnsupportedJwtException e) {
                 LOGGER.warn("Unsupported JWT token, uri: {}", request.getRequestURI());
-                setErrorResponse(response, HttpStatus.UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다.");
-                return; // 인증 실패 시 요청 처리 중단
+                throw e; // 인증 실패 시 요청 처리 중단
             } catch (IllegalArgumentException e) {
                 LOGGER.warn("JWT token compact of handler are invalid, uri: {}", request.getRequestURI());
-                setErrorResponse(response, HttpStatus.UNAUTHORIZED, "JWT 토큰이 잘못되었습니다.");
-                return; // 인증 실패 시 요청 처리 중단
+                throw e; // 인증 실패 시 요청 처리 중단
             }
         }
 

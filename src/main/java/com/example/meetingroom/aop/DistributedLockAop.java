@@ -9,6 +9,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
 
@@ -40,17 +42,24 @@ public class DistributedLockAop {
             if(!available){
                 return false;
             }
-            return aopForTransaction.proceed(joinPoint);
-        }catch (InterruptedException e){
-            throw new InterruptedException();
-        }finally {
-            try{
+            Object result = aopForTransaction.proceed(joinPoint);
+
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (rLock.isLocked() && rLock.isHeldByCurrentThread()) {
+                        rLock.unlock();
+                        log.info("Redisson Lock unlocked after transaction completion: {}", key);
+                    }
+                }
+            });
+            return result;
+        }catch (Exception e){
+            if (rLock.isLocked() && rLock.isHeldByCurrentThread()) {
                 rLock.unlock();
-            } catch (IllegalArgumentException e){
-                log.info("Redisson Lock Already Unlock {} {}",
-                    method.getName(),
-                    key);
+                log.info("Redisson Lock unlocked due to exception: {}", key);
             }
+            throw e;
         }
     }
 }

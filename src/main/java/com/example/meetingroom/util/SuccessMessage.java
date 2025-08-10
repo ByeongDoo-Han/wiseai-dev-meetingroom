@@ -16,8 +16,10 @@ public enum SuccessMessage {
     GET_RESERVATION_SUCCESS(HttpStatus.OK, "회의실 예약 조회 성공"),
     UPDATE_RESERVATION_SUCCESS(HttpStatus.OK, "회의실 예약 수정 성공"),
     DELETE_RESERVATION_SUCCESS(HttpStatus.NO_CONTENT, "회의실 예약 삭제 성공"),
+    PAYMENT_PROCESS_SUCCESS(HttpStatus.OK, "결제 성공"),
     REGISTER_MEMBER_SUCCESS(HttpStatus.CREATED, "회원가입 성공"),
-    LOGIN_MEMBER_SUCCESS(HttpStatus.OK, "로그인 성공")
+    LOGIN_MEMBER_SUCCESS(HttpStatus.OK, "로그인 성공"),
+    WEBHOOK_RECEIVED_SUCCESS(HttpStatus.OK, "웹훅 수신 및 처리 성공")
     ;
 
     private final HttpStatus httpStatus;

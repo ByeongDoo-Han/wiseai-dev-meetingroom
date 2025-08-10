@@ -21,6 +21,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 
     // junit5
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -56,6 +58,9 @@ dependencies {
 
     // validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // wiremock
+    testImplementation("com.github.tomakehurst:wiremock:3.0.1")
 }
 
 tasks.named('test') {

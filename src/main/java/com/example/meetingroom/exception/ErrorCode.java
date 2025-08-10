@@ -28,8 +28,13 @@ public enum ErrorCode {
 
     // Payment Errors
     PAYMENT_FAILED(HttpStatus.BAD_REQUEST, "P001", "Payment processing failed"),
-    PAYMENT_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "P002", "Payment provider not found or unsupported"),
+    PAYMENT_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "P002", "지원하지 않는 결제 방식입니다."),
     PAYMENT_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "P003", "Payment has already been processed for this reservation."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "P004", "결제 정보를 찾을 수 없습니다."),
+    INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "P005", "유효하지 않은 결제 상태입니다."),
+    INVALID_PAYMENT_STATUS_TRANSITION(HttpStatus.BAD_REQUEST, "P006", "유효하지 않은 결제 상태 전이입니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "P007", "결제 금액이 일치하지 않습니다."),
+    INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "P007", "유효하지 않은 결제 금액입니다."),
 
     // User Errors
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),

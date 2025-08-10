@@ -3,6 +3,8 @@ package com.example.meetingroom.service;
 import com.example.meetingroom.dto.meetingRoom.MeetingRoomRequestDto;
 import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
 import com.example.meetingroom.entity.MeetingRoom;
+import com.example.meetingroom.exception.CustomException;
+import com.example.meetingroom.exception.ErrorCode;
 import com.example.meetingroom.repository.MeetingRoomRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -88,5 +92,19 @@ public class MeetingRoomServiceTest {
         verify(meetingRoomRepository).save(any(MeetingRoom.class));
         assertThat(responseDto.getName()).isEqualTo("새 회의실");
         assertThat(responseDto.getCapacity()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("회의실 생성 실패 - 이미 존재하는 이름")
+    void createMeetingRoom_Fail_AlreadyExistedName() {
+        // Given
+        MeetingRoomRequestDto requestDto = new MeetingRoomRequestDto("회의실 A", 10, new BigDecimal("10000"));
+        given(meetingRoomRepository.existsByName("회의실 A")).willReturn(true);
+
+        // When & Then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            meetingRoomService.createMeetingRoom(requestDto);
+        });
+        assertEquals(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME, exception.getErrorCode());
     }
 }

@@ -1,0 +1,34 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/v1/virtualaccount",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/xml"
+      },
+      "X-CLIENT-ID": {
+        "equalTo": "C_CLIENT_ID"
+      },
+      "X-CLIENT-SECRET": {
+        "equalTo": "C_CLIENT_SECRET"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesXPath": "//payment/product[text()='회의실 예약']",
+        "xPathNamespaces": {}
+      },
+      {
+        "matchesXPath": "//payment/price[text()!='']",
+        "xPathNamespaces": {}
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": "<result><status>WAITING</status><accountNum>123-456-789</accountNum><bank>가상은행</bank></result>"
+  }
+}

@@ -6,11 +6,12 @@ import com.example.meetingroom.dto.reservation.ReservationResponse;
 import com.example.meetingroom.dto.reservation.ReservationUpdateRequest;
 import com.example.meetingroom.entity.MeetingRoom;
 import com.example.meetingroom.entity.Member;
+import com.example.meetingroom.entity.PaymentStatus;
 import com.example.meetingroom.entity.Reservation;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import com.example.meetingroom.repository.MeetingRoomRepository;
-import com.example.meetingroom.repository.PaymentRepository;
+import com.example.meetingroom.repository.PaymentsRepository;
 import com.example.meetingroom.repository.ReservationRepository;
 import com.example.meetingroom.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Service
@@ -34,7 +34,7 @@ public class ReservationService {
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberRepository memberRepository;
     private final PaymentsService paymentService;
-    private final PaymentRepository paymentRepository;
+    private final PaymentsRepository paymentRepository;
 
     @DistributedLock(key = "#request.meetingRoomId")
     @Transactional
@@ -56,6 +56,7 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
             .startTime(request.getStartTime())
             .endTime(request.getEndTime())
+            .paymentStatus(PaymentStatus.PENDING)
             .totalAmount(calculateTotalPrice(request.getStartTime(), request.getEndTime(), meetingRoom.getPricePerHour()))
             .meetingRoom(meetingRoom)
             .member(member)
@@ -68,7 +69,7 @@ public class ReservationService {
     public List<ReservationResponse> getAllReservation() {
         List<Reservation> reservationResponseList = reservationRepository.findAll();
         List<ReservationResponse> response = new ArrayList<>();
-        for(Reservation reservation:reservationResponseList){
+        for (Reservation reservation : reservationResponseList) {
             response.add(reservation.toReservationResponseEntity());
         }
         return response;
@@ -86,9 +87,9 @@ public class ReservationService {
         Member member = memberRepository.findMemberByUsername(username).orElseThrow(
             () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
-        if(!Objects.equals(reservation.getMember().getId(), member.getId())){
+        if (!Objects.equals(reservation.getMember().getId(), member.getId())) {
             throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
-        };
+        }
         if (reservationRepository.existDuplicatedReservationExcludingItself(
             reservation.getId(),
             request.getMeetingRoomId(),
@@ -107,7 +108,7 @@ public class ReservationService {
         return reservation.toReservationResponseEntity();
     }
 
-    private BigDecimal calculateTotalPrice(LocalDateTime startTime, LocalDateTime endTime, BigDecimal pricePerHour){
+    private BigDecimal calculateTotalPrice(LocalDateTime startTime, LocalDateTime endTime, BigDecimal pricePerHour) {
         Duration duration = Duration.between(startTime, endTime);
         long minutes = duration.toMinutes();
         BigDecimal totalMinutes = new BigDecimal(minutes);
@@ -121,7 +122,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
         );
-        if(!reservation.getMember().getUsername().equals(username)){
+        if (!reservation.getMember().getUsername().equals(username)) {
             throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
         }
         reservationRepository.deleteById(reservationId);

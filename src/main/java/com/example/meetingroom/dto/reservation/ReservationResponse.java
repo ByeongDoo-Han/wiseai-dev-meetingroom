@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 public class ReservationResponse {
     private Long id;
-    private Long memberId;
-    private Long meetingRoomId;
+    private String username; // 추가
+    private String meetingRoomName; // 추가
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private BigDecimal totalAmount;
