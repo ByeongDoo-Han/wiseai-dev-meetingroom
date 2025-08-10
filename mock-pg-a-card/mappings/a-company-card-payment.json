@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/v1/payments/card",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json"
+      },
+      "X-API-KEY": {
+        "equalTo": "A_COMPANY_SECRET_KEY_123"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.amount > 0)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "transactionId": "mock_card_tx_12345",
+      "resultCode": "00",
+      "message": "Mock 승인완료"
+    }
+  }
+}
