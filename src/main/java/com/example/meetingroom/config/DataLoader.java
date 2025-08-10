@@ -53,11 +53,11 @@ public class DataLoader implements CommandLineRunner {
                 .apiEndpoint("http://meetingroom-virtual/payments/virtual")
                 .authInfo(
                     """
-                        {
-                            "clientId" : "CLIENT_ID",
-                            "clientPassword" : "CLIENT_PASSWORD"                            
-                        }
-                    """
+                            {
+                                "clientId" : "CLIENT_ID",
+                                "clientPassword" : "CLIENT_PASSWORD"                            
+                            }
+                        """
                 )
                 .build();
             paymentProviderRepository.save(virtualPay);

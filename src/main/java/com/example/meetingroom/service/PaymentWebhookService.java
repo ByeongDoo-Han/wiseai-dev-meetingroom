@@ -19,7 +19,7 @@ public class PaymentWebhookService {
     @Transactional
     public void processPaymentStatusWebhook(PaymentWebhookRequest request) {
         Payment payment = paymentRepository.findByExternalPaymentId(request.getExternalPaymentId())
-                .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 
         PaymentStatus newStatus;
         try {

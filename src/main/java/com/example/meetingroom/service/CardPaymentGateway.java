@@ -52,11 +52,11 @@ public class CardPaymentGateway implements PaymentGateway {
         boolean isSuccess = response != null && "00".equals(response.getResultCode());
 
         return PaymentResult.builder()
-                .paymentId(isSuccess ? response.getTransactionId() : null)
-                .status(isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED)
-                .amount(request.getAmount())
-                .message(isSuccess ? "카드 결제 성공" : "카드 결제 실패: " + (response != null ? response.getMessage() : "응답 없음"))
-                .createdAt(LocalDateTime.now())
-                .build();
+            .paymentId(isSuccess ? response.getTransactionId() : null)
+            .status(isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED)
+            .amount(request.getAmount())
+            .message(isSuccess ? "카드 결제 성공" : "카드 결제 실패: " + (response != null ? response.getMessage() : "응답 없음"))
+            .createdAt(LocalDateTime.now())
+            .build();
     }
 }

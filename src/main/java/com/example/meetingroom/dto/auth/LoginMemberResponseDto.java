@@ -9,7 +9,7 @@ public class LoginMemberResponseDto {
     private String username;
 
     @Builder
-    public LoginMemberResponseDto(Long id, String username){
+    public LoginMemberResponseDto(Long id, String username) {
         this.id = id;
         this.username = username;
     }

@@ -25,7 +25,7 @@ public class MeetingRoomService {
     public List<MeetingRoomResponseDto> getAllMeetingRooms() {
         List<MeetingRoom> foundMeetingRoomList = meetingRoomRepository.findAll();
         List<MeetingRoomResponseDto> responseDtoList = new ArrayList<>();
-        for(MeetingRoom meetingRoom:foundMeetingRoomList){
+        for (MeetingRoom meetingRoom : foundMeetingRoomList) {
             MeetingRoomResponseDto dto = MeetingRoomResponseDto.builder()
                 .id(meetingRoom.getId())
                 .name(meetingRoom.getName())
@@ -39,7 +39,7 @@ public class MeetingRoomService {
 
     @Transactional
     public MeetingRoomResponseDto createMeetingRoom(final MeetingRoomRequestDto meetingRoomRequestDto) {
-        if(meetingRoomRepository.existsByName(meetingRoomRequestDto.getName())){
+        if (meetingRoomRepository.existsByName(meetingRoomRequestDto.getName())) {
             throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
         }
 

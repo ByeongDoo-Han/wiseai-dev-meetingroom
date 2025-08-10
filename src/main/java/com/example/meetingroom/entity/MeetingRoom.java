@@ -29,7 +29,7 @@ public class MeetingRoom {
     private BigDecimal pricePerHour;
 
     @Builder
-    public MeetingRoom(Long id, String name, int capacity, BigDecimal pricePerHour){
+    public MeetingRoom(Long id, String name, int capacity, BigDecimal pricePerHour) {
         this.id = id;
         this.name = name;
         this.capacity = capacity;
@@ -47,7 +47,7 @@ public class MeetingRoom {
 
     public void update(
         String name, int capacity, BigDecimal pricePerHour
-    ){
+    ) {
         this.name = name;
         this.capacity = capacity;
         this.pricePerHour = pricePerHour;

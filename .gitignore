@@ -38,3 +38,6 @@ out/
 
 ### gradle ###
 .build/
+
+### env ###
+.env

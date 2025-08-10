@@ -46,13 +46,13 @@ public class TokenProvider {
     }
 
     // Authentication 객체의 권한정보를 이용해서 토큰을 생성
-    public String createAccessToken(Authentication authentication){
+    public String createAccessToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.accessTokenValiditySeconds*1000);
+        Date validity = new Date(now + this.accessTokenValiditySeconds * 1000);
         return Jwts.builder()
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
@@ -62,9 +62,9 @@ public class TokenProvider {
             .compact();
     }
 
-    public String createRefreshToken(Authentication authentication){
+    public String createRefreshToken(Authentication authentication) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.refreshTokenValiditySeconds*1000);
+        Date validity = new Date(now + this.refreshTokenValiditySeconds * 1000);
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
@@ -72,14 +72,14 @@ public class TokenProvider {
         return Jwts.builder()
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
-            .claim(TOKEN_TYPE,REFRESH)
+            .claim(TOKEN_TYPE, REFRESH)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
             .compact();
     }
 
     // Token에 담겨있는 정보를 이용해 Authentication 객체를 리턴
-    public Authentication getAuthentication(String token){
+    public Authentication getAuthentication(String token) {
         Claims claims = Jwts
             .parserBuilder()
             .setSigningKey(key)
@@ -91,7 +91,7 @@ public class TokenProvider {
             Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new).toList();
-        User principal = new User(claims.getSubject(),"", authorities);
+        User principal = new User(claims.getSubject(), "", authorities);
         MemberDetails memberDetail = new MemberDetails(claims.getSubject(), authorities);
         return new UsernamePasswordAuthenticationToken(memberDetail, token, authorities);
     }

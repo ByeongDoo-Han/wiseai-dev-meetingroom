@@ -18,7 +18,7 @@ public class CustomResponseEntity<T> {
     private T data;
 
     @Builder
-    public CustomResponseEntity(boolean success, HttpStatus httpStatus, String message, T data){
+    public CustomResponseEntity(boolean success, HttpStatus httpStatus, String message, T data) {
         this.success = success;
         this.httpStatus = httpStatus;
         this.message = message;
