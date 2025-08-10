@@ -1,5 +1,6 @@
 package com.example.meetingroom.service;
 
+import com.example.meetingroom.aop.DistributedLock;
 import com.example.meetingroom.dto.payment.PaymentRequest;
 import com.example.meetingroom.dto.payment.PaymentResult;
 import com.example.meetingroom.entity.Payment;
@@ -25,6 +26,7 @@ public class PaymentsService {
     private final ReservationRepository reservationRepository;
 
     @Transactional
+    @DistributedLock(key = "#id")
     public PaymentResult processPayment(Long id, PaymentRequest request, String username) {
         // 1. 예약 정보 조회
         Reservation reservation = reservationRepository.findById(id)

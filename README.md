@@ -18,24 +18,17 @@
 | 구분  | 내용        | Method   | API                            | Authorization |
 |:----|:----------|:---------|:-------------------------------|:-----------|
  | 회의실 | 회의실 모두 조회 | `GET`    | `/meeting-rooms`               |            |
-|     | 회의실 하나 조회 | `GET`    | `/meeting-rooms/{id}`          |            |
 |     | 회의실 수정    | `PUT`    | `/meeting-rooms/{id}`          | admin      |
 |     | 회의실 생성    | `POST`   | `/meeting-rooms`               | admin      |
 |     | 회의실 삭제    | `DELETE` | `/meeting-rooms/{id}`          | admin      |
 | 예약  | 예약 생성     | `POST`   | `/reservation`                 | user       |
 |     | 예약 수정     | `PUT`    | `/reservation/{id}`            | user       |
 |     | 예약 모두 조회  | `GET`    | `/reservation`                 |            |
-|     | 예약 하나 조회  | `GET`    | `/reservation/{id}`            |            |
 |     | 예약 취소     | `DELETE` | `/reservation/{id}`            | user       |
 |     | 결제 처리     | `POST`   | `/reservation/{id}/payment`    | user       |
 | 웹   | 결제사 별 웹훅  | `POST`   | `/webhooks/payments/{provider}` |           |
 
 
-
-
-- 회의실
-  - 생성
-  - 
 
 
 ## 3. 기술 스택
@@ -112,7 +105,7 @@ docker-compose up --build
 
 애플리케이션이 정상적으로 실행된 후, 웹 브라우저에서 아래 주소로 접속하여 Swagger UI를 통해 API 문서를 확인하고 직접 테스트할 수 있습니다.
 
--   **Swagger UI**: [http://localhost:8080/docs](http://localhost:8080/docs)
+-   **Swagger UI**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/docs)
 
 ## 5. 테스트 실행 방법
 
@@ -151,19 +144,3 @@ docker-compose up --build
 
 ## 8. 아키텍처 
 ![ARCHITECTURE](src/main/resources/architecture_meeting_room.png)
-
--   **CI/CD**:
-    -   **GitHub Actions**: Main 브랜치에 Push/Merge 시 자동으로 Docker 이미지를 빌드하여 ECR(Elastic Container Registry)에 푸시하고, Kubernetes 클러스터에 배포합니다.
--   **Infrastructure**:
-    -   **Amazon EKS (Elastic Kubernetes Service)**: 컨테이너화된 애플리케이션을 오케스트레이션하여 무중단 배포, 자동 확장(Auto-scaling), 높은 가용성을 확보합니다.
--   **Database**:
-    -   **Amazon RDS (MySQL)**: 완전 관리형 데이터베이스 서비스를 사용하여 백업, 복제, 모니터링 부담을 최소화하고 데이터베이스 가용성을 높입니다.
--   **Cache**:
-    -   **Amazon ElastiCache (Redis)**: 자주 조회되는 회의실 목록이나 특정 시간대의 예약 현황을 캐싱하여 DB 부하를 줄이고 응답 속도를 향상시킵니다.
--   **Load Balancer**:
-    -   **Application Load Balancer (ALB)**: 외부 트래픽을 EKS 클러스터 내의 여러 Pod으로 분산하고, SSL/TLS 인증서 관리를 통해 HTTPS 통신을 적용합니다.
--   **Monitoring & Logging**:
-    -   **Amazon CloudWatch / Prometheus & Grafana**: 애플리케이션 성능 지표(APM), 로그, 인프라 상태를 실시간으로 모니터링하여 장애 발생 시 신속하게 대응합니다.
--   **Security**:
-    -   **PCI DSS 준수**: 결제 정보는 직접 저장하지 않고, 외부 결제사의 `payment_id`만 저장하여 민감한 데이터 유출 위험을 최소화합니다.
-    -   **VPC (Virtual Private Cloud)**: 네트워크를 논리적으로 격리하고, Security Group 및 NACL을 통해 인가된 트래픽만 허용합니다.
