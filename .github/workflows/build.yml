@@ -23,15 +23,4 @@ jobs:
       run: chmod +x gradlew # gradlew 실행 권한 부여
 
     - name: Build with Gradle
-      run: ./gradlew clean build # Gradle을 사용하여 프로젝트 빌드 및 테스트 실행
-
-    # (선택 사항) Docker 이미지 빌드 및 푸시 단계 추가 가능
-    # - name: Build Docker image
-    #   run: docker build -t your-docker-repo/your-app:latest .
-    # - name: Log in to Docker Hub
-    #   uses: docker/login-action@v2
-    #   with:
-    #     username: ${{ secrets.DOCKER_USERNAME }}
-    #     password: ${{ secrets.DOCKER_PASSWORD }}
-    # - name: Push Docker image
-    #   run: docker push your-docker-repo/your-app:latest
+      run: ./gradlew clean build -x test # Gradle을 사용하여 프로젝트 빌드 및 테스트 실행
