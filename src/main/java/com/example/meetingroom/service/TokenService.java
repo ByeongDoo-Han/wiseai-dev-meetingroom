@@ -25,14 +25,14 @@ import java.util.List;
 public class TokenService {
     private final RedissonClient redissonClient;
     private final TokenProvider tokenProvider;
-    private final static long TOKEN_EXPIRE_SECONDS = 60*60;
-    private final static long REFRESH_TOKEN_EXPIRE_SECONDS = 60*60*24;
-    private final static String REFRESH_TOKEN_PREFIX = "refreshToken:";
-    private final static String REFRESH_TOKEN = "refreshToken";
-    private final static String ACCESS_TOKEN_PREFIX = "accessToken:";
-    private final static String GRANT_TYPE = "Bearer ";
+    private static final long TOKEN_EXPIRE_SECONDS = 60*60;
+    private static final long REFRESH_TOKEN_EXPIRE_SECONDS = 60*60*24;
+    private static final String REFRESH_TOKEN_PREFIX = "refreshToken:";
+    private static final String REFRESH_TOKEN = "refreshToken";
+    private static final String ACCESS_TOKEN_PREFIX = "accessToken:";
+    private static final String GRANT_TYPE = "Bearer ";
     private static final String STRICT = "Strict";
-    private final static String AUTH_HEADER = "Authorization";
+    private static final String AUTH_HEADER = "Authorization";
 
     @Transactional
     public ResponseEntity<TokenResponseDto> login(final Member foundMember) {

@@ -3,10 +3,10 @@ package com.example.meetingroom.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class TokenProvider implements InitializingBean {
+public class TokenProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(String.valueOf(TokenProvider.class));
     private static final String AUTHORITIES_KEY = "auth";
     private static final String TOKEN_TYPE = "tokenType";
@@ -39,7 +39,7 @@ public class TokenProvider implements InitializingBean {
     private Key key;
 
     // 빈이 생성이 되고 의존성 주입 받은 secret값을 Base64 Decode해서 key변수에 할당
-    @Override
+    @PostConstruct
     public void afterPropertiesSet() throws Exception {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
