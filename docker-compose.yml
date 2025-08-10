@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: meetingroom-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: meetingroom
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U byeongdoohan -d meetingroom"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:latest
+    container_name: meetingroom-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meetingroom-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://meetingroom-postgres:5432/meetingroom
+      SPRING_DATASOURCE_USERNAME: ${USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
+      SPRING_REDIS_HOST: meetingroom-redis
+      SPRING_REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+    volumes:
+      - ./logs:/app/logs  # Optional: for persistent logs
+
+  mock-pg-a-card:
+    build:
+      context: ./mock-pg-a-card
+      dockerfile: Dockerfile
+    container_name: meetingroom-mock-pg-a-card
+    ports:
+      - "8089:8080"
+
+  mock-pg-b-simple:
+    build:
+      context: ./mock-pg-b-simple
+      dockerfile: Dockerfile
+    container_name: meetingroom-mock-pg-b-simple
+    ports:
+      - "8090:8080"
+
+  mock-pg-c-virtual:
+    build:
+      context: ./mock-pg-c-virtual
+      dockerfile: Dockerfile
+    container_name: meetingroom-mock-pg-c-virtual
+    ports:
+      - "8091:8080"
+
+volumes:
+  pgdata:
+  redis-data:

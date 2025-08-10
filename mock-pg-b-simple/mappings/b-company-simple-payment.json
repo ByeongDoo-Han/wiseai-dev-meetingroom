@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/v1/simplepay",
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/x-www-form-urlencoded"
+      },
+      "Authorization": {
+        "matches": "Basic .*"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matches": "user_id=.+&amount=\\d+"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain"
+    },
+    "body": "SUCCESS|sp_ref_12345"
+  }
+}

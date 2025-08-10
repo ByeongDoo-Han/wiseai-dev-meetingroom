@@ -20,20 +20,47 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 
     // junit5
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // postgresql
+    implementation 'org.postgresql:postgresql:42.7.2'
 
     // lombok
     implementation 'org.projectlombok:lombok:1.18.22'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // redis
+    implementation 'org.redisson:redisson-spring-boot-starter:3.23.4'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // h2
+    testImplementation("com.h2database:h2:2.2.224")
+    implementation 'com.h2database:h2:2.2.224'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // wiremock
+    testImplementation("com.github.tomakehurst:wiremock:3.0.1")
 }
 
 tasks.named('test') {
