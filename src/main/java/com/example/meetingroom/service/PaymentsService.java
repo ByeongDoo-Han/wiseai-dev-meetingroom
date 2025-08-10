@@ -10,7 +10,6 @@ import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import com.example.meetingroom.repository.PaymentsRepository;
 import com.example.meetingroom.repository.ReservationRepository;
-import com.example.meetingroom.util.MemberDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
