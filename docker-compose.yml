@@ -45,6 +45,7 @@ services:
       SPRING_REDIS_HOST: meetingroom-redis
       SPRING_REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_AES_KEY: ${ENCRYPTION_AES_KEY}
     volumes:
       - ./logs:/app/logs  # Optional: for persistent logs
 
