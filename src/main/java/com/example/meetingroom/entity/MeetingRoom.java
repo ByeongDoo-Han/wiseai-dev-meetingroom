@@ -1,6 +1,8 @@
 package com.example.meetingroom.entity;
 
 import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
+import com.example.meetingroom.exception.CustomException;
+import com.example.meetingroom.exception.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -34,6 +36,18 @@ public class MeetingRoom {
         this.name = name;
         this.capacity = capacity;
         this.pricePerHour = pricePerHour;
+    }
+
+    public void isCapacityLargerThanZero(){
+        if(this.capacity<1){
+            throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
+        }
+    }
+
+    public void isPricePerHourLargerThanZero(){
+        if(this.pricePerHour.compareTo(BigDecimal.ONE) < 0){
+            throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
+        }
     }
 
     public MeetingRoomResponseDto toResponseEntity() {

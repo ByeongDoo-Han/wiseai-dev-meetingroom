@@ -18,6 +18,9 @@ public enum ErrorCode {
     // Meeting Room Errors
     MEETING_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "존재하지 않는 회의실입니다."),
     MEETING_ROOM_ALREADY_EXISTED_NAME(HttpStatus.CONFLICT, "M002", "이미 존재하는 회의실 이름입니다."),
+    MEETING_ROOM_CAPACITY_IS_ZERO(HttpStatus.BAD_REQUEST, "M003", "회의실 인원은 1명 이상이어야 합니다."),
+    MEETING_ROOM_PRICEPERHOUR_IS_ZERO(HttpStatus.BAD_REQUEST, "M003", "회의실 시간 당 요금은 0이 될 수 없습니다."),
+
 
     // Reservation Errors
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "존재하지 않는 예약입니다."),
