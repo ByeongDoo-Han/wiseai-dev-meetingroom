@@ -28,7 +28,8 @@ public class DistributedLockAop {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
-        String key = REDISSON_LOCK_PREFIX + CustomSpringELParser.getDynamicValue(
+        String lockPrefix = distributedLock.lock();
+        String key = lockPrefix + CustomSpringELParser.getDynamicValue(
             signature.getParameterNames(),
             joinPoint.getArgs(),
             distributedLock.key());

@@ -1,9 +1,9 @@
 package com.example.meetingroom.service;
 
 import com.example.meetingroom.aop.DistributedLock;
-import com.example.meetingroom.dto.reservation.ReservationRequest;
-import com.example.meetingroom.dto.reservation.ReservationResponse;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequest;
+import com.example.meetingroom.dto.reservation.ReservationRequestDto;
+import com.example.meetingroom.dto.reservation.ReservationResponseDto;
+import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
 import com.example.meetingroom.entity.MeetingRoom;
 import com.example.meetingroom.entity.Member;
 import com.example.meetingroom.entity.PaymentStatus;
@@ -36,9 +36,9 @@ public class ReservationService {
     private final PaymentsService paymentService;
     private final PaymentsRepository paymentRepository;
 
-    @DistributedLock(key = "#request.meetingRoomId")
+    @DistributedLock(key = "#request.meetingRoomId", lock = "reservation")
     @Transactional
-    public ReservationResponse createReservation(final String username, final ReservationRequest request) {
+    public ReservationResponseDto createReservation(final String username, final ReservationRequestDto request) {
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getMeetingRoomId()).orElseThrow(
             () -> new CustomException(ErrorCode.MEETING_ROOM_NOT_FOUND)
         );
@@ -62,22 +62,22 @@ public class ReservationService {
             .member(member)
             .build();
         reservationRepository.save(reservation);
-        return reservation.toReservationResponseEntity();
+        return ReservationResponseDto.from(reservation);
     }
 
     @Transactional
-    public List<ReservationResponse> getAllReservation() {
+    public List<ReservationResponseDto> getAllReservation() {
         List<Reservation> reservationResponseList = reservationRepository.findAll();
-        List<ReservationResponse> response = new ArrayList<>();
+        List<ReservationResponseDto> response = new ArrayList<>();
         for (Reservation reservation : reservationResponseList) {
-            response.add(reservation.toReservationResponseEntity());
+            response.add(ReservationResponseDto.from(reservation));
         }
         return response;
     }
 
     @Transactional
-    @DistributedLock(key = "#request.meetingRoomId")
-    public ReservationResponse updateReservation(final String username, final ReservationUpdateRequest request) {
+    @DistributedLock(key = "#request.meetingRoomId", lock = "reservation")
+    public ReservationResponseDto updateReservation(final String username, final ReservationUpdateRequestDto request) {
         Reservation reservation = reservationRepository.findById(request.getReservationId()).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
         );
@@ -105,7 +105,7 @@ public class ReservationService {
             calculateTotalPrice(request.getStartTime(), request.getEndTime(), meetingRoom.getPricePerHour()),
             meetingRoom);
         reservationRepository.save(reservation);
-        return reservation.toReservationResponseEntity();
+        return ReservationResponseDto.from(reservation);
     }
 
     private BigDecimal calculateTotalPrice(LocalDateTime startTime, LocalDateTime endTime, BigDecimal pricePerHour) {

@@ -1,12 +1,11 @@
 package com.example.meetingroom.entity;
 
-import com.example.meetingroom.dto.reservation.ReservationResponse;
+import com.example.meetingroom.dto.reservation.ReservationResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -48,18 +47,6 @@ public class Reservation {
 
     public void updatePaymentStatus(PaymentStatus newStatus) {
         this.paymentStatus = newStatus;
-    }
-
-    public ReservationResponse toReservationResponseEntity() {
-        return ReservationResponse.builder()
-            .id(id)
-            .username(member.getUsername())
-            .meetingRoomName(meetingRoom.getName())
-            .startTime(startTime)
-            .endTime(endTime)
-            .totalAmount(totalAmount)
-            .paymentStatus(paymentStatus) // 실제 paymentStatus 사용
-            .build();
     }
 
     public void update(LocalDateTime newStartTime, LocalDateTime newEndTime, BigDecimal newTotalAmount, MeetingRoom newMeetingRoom) {

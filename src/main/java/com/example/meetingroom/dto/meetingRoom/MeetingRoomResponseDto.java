@@ -1,5 +1,6 @@
 package com.example.meetingroom.dto.meetingRoom;
 
+import com.example.meetingroom.entity.MeetingRoom;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,5 +19,14 @@ public class MeetingRoomResponseDto {
         this.name = name;
         this.capacity = capacity;
         this.pricePerHour = pricePerHour;
+    }
+
+    public static MeetingRoomResponseDto from(MeetingRoom meetingRoom){
+        return MeetingRoomResponseDto.builder()
+            .id(meetingRoom.getId())
+            .name(meetingRoom.getName())
+            .capacity(meetingRoom.getCapacity())
+            .pricePerHour(meetingRoom.getPricePerHour())
+            .build();
     }
 }

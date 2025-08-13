@@ -13,13 +13,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ValidReservationTimeRange
-public class ReservationUpdateRequest {
+public class ReservationRequestDto {
 
     @NotNull
     private Long meetingRoomId;
-
-    @NotNull
-    private Long reservationId;
 
     @NotNull
     @Future(message = "예약 시간은 현재 시간 이후여야 합니다.")
@@ -32,9 +29,8 @@ public class ReservationUpdateRequest {
     private LocalDateTime endTime;
 
     @Builder
-    public ReservationUpdateRequest(final Long meetingRoomId, final Long reservationId, final LocalDateTime startTime, final LocalDateTime endTime) {
+    public ReservationRequestDto(Long meetingRoomId, LocalDateTime startTime, LocalDateTime endTime) {
         this.meetingRoomId = meetingRoomId;
-        this.reservationId = reservationId;
         this.startTime = startTime;
         this.endTime = endTime;
     }

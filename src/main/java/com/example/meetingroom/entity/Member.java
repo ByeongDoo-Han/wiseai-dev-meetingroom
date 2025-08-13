@@ -33,12 +33,4 @@ public class Member {
         this.username = username;
         this.role = role;
     }
-
-    public RegisterMemberResponseDto toRegistMemberResponseEntity() {
-        return RegisterMemberResponseDto.builder()
-            .id(this.id)
-            .username(this.username)
-            .role(this.role)
-            .build();
-    }
 }
