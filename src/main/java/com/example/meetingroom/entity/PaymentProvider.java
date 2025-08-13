@@ -1,11 +1,14 @@
 package com.example.meetingroom.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentProvider {
 
     @Id
@@ -20,13 +23,4 @@ public class PaymentProvider {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
     private PaymentProviderType providerType;
-
-    @Builder
-    public PaymentProvider(final Long id, final String name, final String apiEndpoint, final String authInfo, final PaymentProviderType providerType) {
-        this.id = id;
-        this.name = name;
-        this.apiEndpoint = apiEndpoint;
-        this.authInfo = authInfo;
-        this.providerType = providerType;
-    }
 }

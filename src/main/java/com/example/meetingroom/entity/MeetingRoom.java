@@ -50,13 +50,10 @@ public class MeetingRoom {
         }
     }
 
-    public MeetingRoomResponseDto toResponseEntity() {
-        return MeetingRoomResponseDto.builder()
-            .id(getId())
-            .name(getName())
-            .capacity(getCapacity())
-            .pricePerHour(getPricePerHour())
-            .build();
+    public void isDuplicatedName(String name){
+        if(this.name.equals(name)){
+            throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
+        }
     }
 
     public void update(

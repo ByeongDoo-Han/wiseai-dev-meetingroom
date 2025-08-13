@@ -2,9 +2,9 @@ package com.example.meetingroom.controller;
 
 import com.example.meetingroom.dto.payment.PaymentRequest;
 import com.example.meetingroom.dto.payment.PaymentResult;
-import com.example.meetingroom.dto.reservation.ReservationRequest;
-import com.example.meetingroom.dto.reservation.ReservationResponse;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequest;
+import com.example.meetingroom.dto.reservation.ReservationRequestDto;
+import com.example.meetingroom.dto.reservation.ReservationResponseDto;
+import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
 import com.example.meetingroom.service.PaymentsService;
 import com.example.meetingroom.service.ReservationService;
 import com.example.meetingroom.util.CustomResponseEntity;
@@ -45,9 +45,9 @@ public class ReservationController {
         @ApiResponse(responseCode = "409", description = "예약 시간이 중복됨", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping
-    public ResponseEntity<CustomResponseEntity<ReservationResponse>> createReservation(
+    public ResponseEntity<CustomResponseEntity<ReservationResponseDto>> createReservation(
         @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
-        @Valid @RequestBody ReservationRequest request) {
+        @Valid @RequestBody ReservationRequestDto request) {
         return ResponseUtil.success(
             reservationService.createReservation(memberDetails.getUsername(), request),
             SuccessMessage.CREATE_RESERVATION_SUCCESS
@@ -59,7 +59,7 @@ public class ReservationController {
         @ApiResponse(responseCode = "200", description = "조회 성공")
     })
     @GetMapping
-    public ResponseEntity<CustomResponseEntity<List<ReservationResponse>>> getAllReservation() {
+    public ResponseEntity<CustomResponseEntity<List<ReservationResponseDto>>> getAllReservation() {
         return ResponseUtil.success(
             reservationService.getAllReservation(),
             SuccessMessage.GET_RESERVATION_SUCCESS
@@ -74,10 +74,10 @@ public class ReservationController {
         @ApiResponse(responseCode = "409", description = "수정하려는 시간이 다른 예약과 중복됨", content = @Content(schema = @Schema(hidden = true)))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponseEntity<ReservationResponse>> updateReservation(
+    public ResponseEntity<CustomResponseEntity<ReservationResponseDto>> updateReservation(
         @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
         @Parameter(description = "수정할 예약의 ID") @PathVariable Long id,
-        @Valid @RequestBody ReservationUpdateRequest request
+        @Valid @RequestBody ReservationUpdateRequestDto request
     ) {
         return ResponseUtil.success(
             reservationService.updateReservation(memberDetails.getUsername(), request),
