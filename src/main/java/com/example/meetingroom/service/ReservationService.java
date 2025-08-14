@@ -61,6 +61,7 @@ public class ReservationService {
             .meetingRoom(meetingRoom)
             .member(member)
             .build();
+        reservation.valid();
         reservationRepository.save(reservation);
         return ReservationResponseDto.from(reservation);
     }
