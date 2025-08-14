@@ -80,7 +80,7 @@ class PaymentsServiceTest {
             .thenReturn(PaymentResult.builder().status(PaymentStatus.SUCCESS).build());
 
         // when
-        assertDoesNotThrow(() -> paymentsService.processPayment(request, memberDetailsA.getUsername()));
+        assertDoesNotThrow(() -> paymentsService.processPayment(1L, request, memberDetailsA.getUsername()));
 
         // then
         verify(reservationRepository).findById(1L);
@@ -96,7 +96,7 @@ class PaymentsServiceTest {
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> {
-            paymentsService.processPayment(request, memberDetailsA.getUsername());
+            paymentsService.processPayment(999L, request, memberDetailsA.getUsername());
         });
         assertEquals(ErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());
     }
@@ -112,7 +112,7 @@ class PaymentsServiceTest {
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> {
-            paymentsService.processPayment(request, memberDetailsB.getUsername());
+            paymentsService.processPayment(1L, request, memberDetailsB.getUsername());
         });
         assertEquals(ErrorCode.HANDLE_ACCESS_DENIED, exception.getErrorCode());
     }
@@ -130,7 +130,7 @@ class PaymentsServiceTest {
 
         // when & then
         CustomException exception = assertThrows(CustomException.class, () -> {
-            paymentsService.processPayment(request, memberDetailsA.getUsername());
+            paymentsService.processPayment(1L, request, memberDetailsA.getUsername());
         });
         assertEquals(ErrorCode.PAYMENT_AMOUNT_MISMATCH, exception.getErrorCode());
     }

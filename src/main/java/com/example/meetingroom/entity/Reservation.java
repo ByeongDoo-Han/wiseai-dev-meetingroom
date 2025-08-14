@@ -56,6 +56,10 @@ public class Reservation {
         this.meetingRoom = newMeetingRoom;
     }
 
+    public void isStartTimeOnTime(){
+
+    }
+
     public BigDecimal calculateTotalPrice(BigDecimal pricePerHour) {
         long hours = ChronoUnit.HOURS.between(this.startTime, this.endTime);
         long minutes = ChronoUnit.MINUTES.between(this.startTime, this.endTime) % 60;

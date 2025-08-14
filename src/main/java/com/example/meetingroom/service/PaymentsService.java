@@ -20,12 +20,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentsService {
 
+    private static final String RESERVATION_LOCK_PREFIX = "RESERVATION:";
     private final List<PaymentGateway> paymentGateways;
     private final PaymentsRepository paymentRepository;
     private final ReservationRepository reservationRepository;
 
     @Transactional
-    @DistributedLock(key = "#id")
+    @DistributedLock(key = "#id", lockName = RESERVATION_LOCK_PREFIX)
     public PaymentResult processPayment(Long id, PaymentRequest request, String username) {
         // 1. 예약 정보 조회
         Reservation reservation = reservationRepository.findById(id)

@@ -31,5 +31,5 @@ public @interface DistributedLock {
      */
     long leaseTime() default 3L;
 
-    String lock();
+    String lockName();
 }
