@@ -12,15 +12,12 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ValidReservationTimeRange
 public class ReservationRequestDto {
 
     @NotNull
     private Long meetingRoomId;
 
     @NotNull
-    @Future(message = "예약 시간은 현재 시간 이후여야 합니다.")
-    @ValidReservationTime
     private LocalDateTime startTime;
 
     @NotNull

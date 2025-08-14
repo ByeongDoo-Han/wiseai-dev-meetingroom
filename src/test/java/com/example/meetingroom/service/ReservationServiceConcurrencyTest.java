@@ -155,7 +155,7 @@ public class ReservationServiceConcurrencyTest {
                 latch.await();
                 reservationService.updateReservation(memberA.getUsername(), requestA);
                 successCount.incrementAndGet();
-            } catch (Exception e) {
+            } catch (CustomException | InterruptedException e) {
                 failCount.incrementAndGet();
             }
         });
@@ -167,7 +167,7 @@ public class ReservationServiceConcurrencyTest {
                 reservationService.updateReservation(memberB.getUsername(), requestB);
                 successCount.incrementAndGet();
 
-            } catch (Exception e) {
+            } catch (CustomException | InterruptedException e) {
                 failCount.incrementAndGet();
 
             }

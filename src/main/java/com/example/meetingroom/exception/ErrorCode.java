@@ -19,15 +19,18 @@ public enum ErrorCode {
     MEETING_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "존재하지 않는 회의실입니다."),
     MEETING_ROOM_ALREADY_EXISTED_NAME(HttpStatus.CONFLICT, "M002", "이미 존재하는 회의실 이름입니다."),
     MEETING_ROOM_CAPACITY_IS_ZERO(HttpStatus.BAD_REQUEST, "M003", "회의실 인원은 1명 이상이어야 합니다."),
-    MEETING_ROOM_PRICEPERHOUR_IS_ZERO(HttpStatus.BAD_REQUEST, "M003", "회의실 시간 당 요금은 0이 될 수 없습니다."),
+    MEETING_ROOM_PRICEPERHOUR_IS_ZERO(HttpStatus.BAD_REQUEST, "M004", "회의실 시간 당 요금은 0이 될 수 없습니다."),
+    MEETING_ROOM_TIME_IS_ZERO(HttpStatus.BAD_REQUEST, "M005", "회의실 예약 시간은 최소 30분 이상이어야 합니다."),
 
 
     // Reservation Errors
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "R001", "존재하지 않는 예약입니다."),
     RESERVATION_TIME_CONFLICT(HttpStatus.CONFLICT, "R002", "해당 시간에 이미 예약이 존재합니다."),
-    INVALID_RESERVATION_TIME(HttpStatus.BAD_REQUEST, "R003", "Invalid reservation time. Start time must be before end time and in 00 or 30 minute intervals."),
-    RESERVATION_ALREADY_PAID(HttpStatus.BAD_REQUEST, "R004", "Reservation is already paid or in process."),
-    RESERVATION_STATUS_INVALID(HttpStatus.BAD_REQUEST, "R005", "Invalid reservation status for the operation."),
+    INVALID_RESERVATION_TIME(HttpStatus.BAD_REQUEST, "R003", "예약 시간은 정시, 30분에 예약이 가능하며 30분 단위로 예약이 가능합니다."),
+    RESERVATION_TIME_IS_ZERO(HttpStatus.BAD_REQUEST, "R004", "예약 시간은 최소 30분 이상부터 예약 가능합니다."),
+    RESERVATION_START_TIME_IS_AFTER_THAN_END_TIME(HttpStatus.BAD_REQUEST, "R005", "예약 시작 시간은 종료 시간보다 이전이어야 합니다."),
+    RESERVATION_ALREADY_PAID(HttpStatus.BAD_REQUEST, "R006", "Reservation is already paid or in process."),
+    RESERVATION_STATUS_INVALID(HttpStatus.BAD_REQUEST, "R007", "Invalid reservation status for the operation."),
 
     // Payment Errors
     PAYMENT_FAILED(HttpStatus.BAD_REQUEST, "P001", "Payment processing failed"),

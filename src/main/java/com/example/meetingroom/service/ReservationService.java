@@ -29,14 +29,14 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-
+    public static final String RESERVATION_LOCK_PREFIX = "RESERVATION:";
     private final ReservationRepository reservationRepository;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberRepository memberRepository;
     private final PaymentsService paymentService;
     private final PaymentsRepository paymentRepository;
 
-    @DistributedLock(key = "#request.meetingRoomId", lock = "reservation")
+    @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
     @Transactional
     public ReservationResponseDto createReservation(final String username, final ReservationRequestDto request) {
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getMeetingRoomId()).orElseThrow(
@@ -61,6 +61,7 @@ public class ReservationService {
             .meetingRoom(meetingRoom)
             .member(member)
             .build();
+        reservation.valid();
         reservationRepository.save(reservation);
         return ReservationResponseDto.from(reservation);
     }
@@ -76,7 +77,7 @@ public class ReservationService {
     }
 
     @Transactional
-    @DistributedLock(key = "#request.meetingRoomId", lock = "reservation")
+    @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
     public ReservationResponseDto updateReservation(final String username, final ReservationUpdateRequestDto request) {
         Reservation reservation = reservationRepository.findById(request.getReservationId()).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
@@ -117,6 +118,7 @@ public class ReservationService {
         return hours.multiply(pricePerHour);
     }
 
+    @DistributedLock(key = "#reservationId", lockName = RESERVATION_LOCK_PREFIX)
     @Transactional
     public void cancelReservation(final String username, final Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
