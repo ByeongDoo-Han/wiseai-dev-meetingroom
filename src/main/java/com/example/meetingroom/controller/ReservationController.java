@@ -114,11 +114,11 @@ public class ReservationController {
     @PostMapping("/{id}/payment")
     public ResponseEntity<CustomResponseEntity<PaymentResult>> processPayment(
         @AuthenticationPrincipal MemberDetails memberDetails,
-        @Valid @RequestBody PaymentRequest request,
+        @RequestBody PaymentRequest request,
         @PathVariable Long id) {
 
         return ResponseUtil.success(
-            paymentsService.processPayment(id, request, memberDetails.getUsername()),
+            reservationService.processPayment(id, request, memberDetails.getUsername()),
             SuccessMessage.PAYMENT_PROCESS_SUCCESS
         );
     }
