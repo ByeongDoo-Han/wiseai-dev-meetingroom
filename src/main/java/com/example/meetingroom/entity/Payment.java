@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -45,6 +46,9 @@ public class Payment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
+    private LocalDateTime modifiedAt;
+
     public void markAsSuccess() {
         if (this.status != PaymentStatus.PENDING) {
             throw new CustomException(ErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
@@ -74,5 +78,10 @@ public class Payment {
             throw new CustomException(ErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
         }
         this.status = PaymentStatus.PENDING;
+    }
+
+    public void update(final PaymentStatus status, final String externalPaymentId) {
+        this.status = status;
+        this.externalPaymentId = externalPaymentId;
     }
 }
