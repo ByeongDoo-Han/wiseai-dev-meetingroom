@@ -14,14 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class PaymentRequest {
-    @NotNull(message = "예약 ID는 필수입니다.")
-    private Long reservationId;
-
-    @NotNull(message = "결제 금액은 필수입니다.")
-    private BigDecimal amount;
 
     @NotNull(message = "결제사 타입은 필수입니다.")
     private PaymentProviderType providerType;
 
-    private Object details;
 }
