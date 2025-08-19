@@ -60,7 +60,6 @@ public class MeetingRoomService {
         foundMeetingRoom.update(meetingRoomRequestDto.getName(),
             meetingRoomRequestDto.getCapacity(),
             meetingRoomRequestDto.getPricePerHour());
-        meetingRoomRepository.save(foundMeetingRoom);
         return MeetingRoomResponseDto.from(foundMeetingRoom);
     }
 
