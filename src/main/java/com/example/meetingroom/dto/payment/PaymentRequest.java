@@ -1,27 +1,31 @@
 package com.example.meetingroom.dto.payment;
 
+import com.example.meetingroom.dto.payment.card.CardPaymentRequest;
+import com.example.meetingroom.dto.payment.simple.SimplePaymentRequest;
+import com.example.meetingroom.dto.payment.virtual.VirtualPaymentRequest;
 import com.example.meetingroom.entity.PaymentProviderType;
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class PaymentRequest {
-    @NotNull(message = "예약 ID는 필수입니다.")
-    private Long reservationId;
+@SuperBuilder
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "providerType"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CardPaymentRequest.class, name = "CARD"),
+    @JsonSubTypes.Type(value = VirtualPaymentRequest.class, name = "VIRTUAL_ACCOUNT"),
+    @JsonSubTypes.Type(value = SimplePaymentRequest.class, name = "SIMPLE_PAYMENT")
+})
+public abstract class PaymentRequest {
 
-    @NotNull(message = "결제 금액은 필수입니다.")
-    private BigDecimal amount;
-
-    @NotNull(message = "결제사 타입은 필수입니다.")
     private PaymentProviderType providerType;
-
-    private Object details;
 }

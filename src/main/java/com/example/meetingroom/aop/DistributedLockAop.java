@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 @RequiredArgsConstructor
 @Slf4j
 public class DistributedLockAop {
-    private static final String REDISSON_LOCK_PREFIX = "LOCK:";
+    private static final String RESERVATION_LOCK_PREFIX = "RESERVATION:";
     private final AopForTransaction aopForTransaction;
     private final RedissonClient redissonClient;
 
@@ -28,7 +28,8 @@ public class DistributedLockAop {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         DistributedLock distributedLock = method.getAnnotation(DistributedLock.class);
-        String key = REDISSON_LOCK_PREFIX + CustomSpringELParser.getDynamicValue(
+        String lockPrefix = distributedLock.lockName();
+        String key = lockPrefix + CustomSpringELParser.getDynamicValue(
             signature.getParameterNames(),
             joinPoint.getArgs(),
             distributedLock.key());

@@ -28,7 +28,11 @@ logging:
     com.example.meeting-room: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
 jwt:
-  secret:
+  secret: ${JWT_SECRET}
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 86400
+encryption:
+  aes:
+    key: ${ENCRYPTION_AES_KEY}

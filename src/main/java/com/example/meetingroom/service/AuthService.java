@@ -32,7 +32,7 @@ public class AuthService {
             .role(Role.MEMBER)
             .build();
         memberRepository.save(member);
-        return member.toRegistMemberResponseEntity();
+        return RegisterMemberResponseDto.from(member);
     }
 
     @Transactional

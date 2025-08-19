@@ -1,12 +1,14 @@
 package com.example.meetingroom.entity;
 
-import com.example.meetingroom.dto.reservation.ReservationResponse;
+import com.example.meetingroom.dto.reservation.ReservationResponseDto;
+import com.example.meetingroom.exception.CustomException;
+import com.example.meetingroom.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -50,23 +52,42 @@ public class Reservation {
         this.paymentStatus = newStatus;
     }
 
-    public ReservationResponse toReservationResponseEntity() {
-        return ReservationResponse.builder()
-            .id(id)
-            .username(member.getUsername())
-            .meetingRoomName(meetingRoom.getName())
-            .startTime(startTime)
-            .endTime(endTime)
-            .totalAmount(totalAmount)
-            .paymentStatus(paymentStatus) // 실제 paymentStatus 사용
-            .build();
-    }
-
     public void update(LocalDateTime newStartTime, LocalDateTime newEndTime, BigDecimal newTotalAmount, MeetingRoom newMeetingRoom) {
         this.startTime = newStartTime;
         this.endTime = newEndTime;
         this.totalAmount = newTotalAmount;
         this.meetingRoom = newMeetingRoom;
+    }
+
+    public void valid(){
+        validStartTimeMinuteZeroOrThirty();
+        validEndTimeMinuteZeroOrThirty();
+        validStartTimeIsBeforeThanEndTime();
+        validIsNotZero();
+    }
+
+    public void validStartTimeIsBeforeThanEndTime(){
+        if(this.startTime.isAfter(this.endTime)){
+            throw new CustomException(ErrorCode.RESERVATION_START_TIME_IS_AFTER_THAN_END_TIME);
+        }
+    }
+
+    public void validStartTimeMinuteZeroOrThirty(){
+        if(this.startTime.getMinute() != 0 && this.startTime.getMinute()!=30){
+            throw new CustomException(ErrorCode.INVALID_RESERVATION_TIME);
+        }
+    }
+
+    public void validEndTimeMinuteZeroOrThirty(){
+        if(this.endTime.getMinute() != 0 && this.endTime.getMinute()!=30){
+            throw new CustomException(ErrorCode.INVALID_RESERVATION_TIME);
+        }
+    }
+
+    public void validIsNotZero(){
+        if(this.endTime.equals(this.startTime)){
+            throw new CustomException(ErrorCode.MEETING_ROOM_TIME_IS_ZERO);
+        }
     }
 
     public BigDecimal calculateTotalPrice(BigDecimal pricePerHour) {

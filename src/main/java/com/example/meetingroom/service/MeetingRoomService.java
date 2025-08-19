@@ -49,7 +49,7 @@ public class MeetingRoomService {
             .pricePerHour(meetingRoomRequestDto.getPricePerHour())
             .build();
         MeetingRoom newMeetingRoom = meetingRoomRepository.save(meetingRoom);
-        return newMeetingRoom.toResponseEntity();
+        return MeetingRoomResponseDto.from(newMeetingRoom);
     }
 
     @Transactional
@@ -61,7 +61,7 @@ public class MeetingRoomService {
             meetingRoomRequestDto.getCapacity(),
             meetingRoomRequestDto.getPricePerHour());
         meetingRoomRepository.save(foundMeetingRoom);
-        return foundMeetingRoom.toResponseEntity();
+        return MeetingRoomResponseDto.from(foundMeetingRoom);
     }
 
     @Transactional

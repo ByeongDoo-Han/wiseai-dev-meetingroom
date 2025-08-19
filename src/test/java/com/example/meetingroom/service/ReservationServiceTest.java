@@ -1,8 +1,8 @@
 package com.example.meetingroom.service;
 
-import com.example.meetingroom.dto.reservation.ReservationRequest;
-import com.example.meetingroom.dto.reservation.ReservationResponse;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequest;
+import com.example.meetingroom.dto.reservation.ReservationRequestDto;
+import com.example.meetingroom.dto.reservation.ReservationResponseDto;
+import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
 import com.example.meetingroom.entity.MeetingRoom;
 import com.example.meetingroom.entity.Member;
 import com.example.meetingroom.entity.Reservation;
@@ -28,7 +28,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -75,7 +74,7 @@ class ReservationServiceTest {
         void create_reservation_success(){
              LocalDateTime startTime = LocalDateTime.of(2025, 9, 1, 10, 0);
              LocalDateTime endTime = startTime.plusHours(2); // 2시간 예약
-             ReservationRequest request = ReservationRequest.builder()
+             ReservationRequestDto request = ReservationRequestDto.builder()
                      .meetingRoomId(1L)
                      .startTime(startTime)
                      .endTime(endTime)
@@ -99,7 +98,7 @@ class ReservationServiceTest {
 
             given(reservationRepository.save(any(Reservation.class))).willReturn(savedReservation);
 
-            ReservationResponse response = reservationService.createReservation(member.getUsername(), request);
+            ReservationResponseDto response = reservationService.createReservation(member.getUsername(), request);
 
             assertThat(response).isNotNull();
             assertThat(response.getStartTime()).isEqualTo(startTime);
@@ -115,7 +114,7 @@ class ReservationServiceTest {
             // builder를 사용하여 예약 요청 DTO 생성
             LocalDateTime startTime = LocalDateTime.of(2025, 9, 1, 10, 0);
             LocalDateTime endTime = startTime.plusHours(2);
-            ReservationRequest request = ReservationRequest.builder()
+            ReservationRequestDto request = ReservationRequestDto.builder()
                     .meetingRoomId(1L)
                     .startTime(startTime)
                     .endTime(endTime)
@@ -213,7 +212,7 @@ class ReservationServiceTest {
             // given
             LocalDateTime newStartTime = LocalDateTime.of(2025, 8, 11, 14, 0);
             LocalDateTime newEndTime = newStartTime.plusHours(3); // 3시간으로 변경
-            ReservationUpdateRequest request = ReservationUpdateRequest.builder()
+            ReservationUpdateRequestDto request = ReservationUpdateRequestDto.builder()
                     .reservationId(1L)
                     .meetingRoomId(1L) // 회의실은 변경하지 않음
                     .startTime(newStartTime)
@@ -230,7 +229,7 @@ class ReservationServiceTest {
             )).willReturn(false);
 
             // when
-            ReservationResponse response = reservationService.updateReservation(member.getUsername(), request);
+            ReservationResponseDto response = reservationService.updateReservation(member.getUsername(), request);
 
             // then
             // 응답 DTO의 값이 요청에 맞게 변경되었는지 확인
@@ -244,7 +243,7 @@ class ReservationServiceTest {
         @DisplayName("실패 - 존재하지 않는 예약")
         void update_fail_reservation_not_found() {
             // given
-            ReservationUpdateRequest request = ReservationUpdateRequest.builder()
+            ReservationUpdateRequestDto request = ReservationUpdateRequestDto.builder()
                     .reservationId(99L) // 존재하지 않는 예약 ID
                     .meetingRoomId(1L)
                     .startTime(LocalDateTime.now())
@@ -268,7 +267,7 @@ class ReservationServiceTest {
             // builder를 사용하여 예약 요청 DTO 생성
             LocalDateTime startTime = LocalDateTime.of(2025, 9, 1, 10, 0);
             LocalDateTime endTime = startTime.plusHours(2);
-            ReservationUpdateRequest request = ReservationUpdateRequest.builder()
+            ReservationUpdateRequestDto request = ReservationUpdateRequestDto.builder()
                 .meetingRoomId(1L)
                 .reservationId(1L)
                 .startTime(startTime)

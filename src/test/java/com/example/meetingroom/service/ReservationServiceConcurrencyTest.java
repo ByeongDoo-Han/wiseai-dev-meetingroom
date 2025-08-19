@@ -1,7 +1,7 @@
 package com.example.meetingroom.service;
 
-import com.example.meetingroom.dto.reservation.ReservationRequest;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequest;
+import com.example.meetingroom.dto.reservation.ReservationRequestDto;
+import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
 import com.example.meetingroom.entity.*;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
@@ -58,7 +58,7 @@ public class ReservationServiceConcurrencyTest {
         LocalDateTime startTime = LocalDateTime.of(2025, 12, 1, 15, 0);
         LocalDateTime endTime = startTime.plusHours(1);
 
-        ReservationRequest request = ReservationRequest.builder()
+        ReservationRequestDto request = ReservationRequestDto.builder()
             .meetingRoomId(meetingRoom.getId())
             .startTime(startTime)
             .endTime(endTime)
@@ -132,12 +132,12 @@ public class ReservationServiceConcurrencyTest {
             .totalAmount(new BigDecimal("1000"))
             .build());
 
-        ReservationUpdateRequest requestA = ReservationUpdateRequest.builder()
+        ReservationUpdateRequestDto requestA = ReservationUpdateRequestDto.builder()
             .reservationId(reservationA.getId()).meetingRoomId(meetingRoom.getId())
             .startTime(reservationB.getStartTime()).endTime(reservationB.getEndTime())
             .build();
 
-        ReservationUpdateRequest requestB = ReservationUpdateRequest.builder()
+        ReservationUpdateRequestDto requestB = ReservationUpdateRequestDto.builder()
             .reservationId(reservationB.getId()).meetingRoomId(meetingRoom.getId())
             .startTime(reservationA.getStartTime()).endTime(reservationA.getEndTime())
             .build();
@@ -155,7 +155,7 @@ public class ReservationServiceConcurrencyTest {
                 latch.await();
                 reservationService.updateReservation(memberA.getUsername(), requestA);
                 successCount.incrementAndGet();
-            } catch (Exception e) {
+            } catch (CustomException | InterruptedException e) {
                 failCount.incrementAndGet();
             }
         });
@@ -167,7 +167,7 @@ public class ReservationServiceConcurrencyTest {
                 reservationService.updateReservation(memberB.getUsername(), requestB);
                 successCount.incrementAndGet();
 
-            } catch (Exception e) {
+            } catch (CustomException | InterruptedException e) {
                 failCount.incrementAndGet();
 
             }

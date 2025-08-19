@@ -1,15 +1,15 @@
 package com.example.meetingroom.util;
 
 import com.example.meetingroom.aop.ValidReservationTimeRange;
-import com.example.meetingroom.dto.reservation.ReservationRequest;
+import com.example.meetingroom.dto.reservation.ReservationRequestDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDateTime;
 
-public class TimeRangeValidator implements ConstraintValidator<ValidReservationTimeRange, ReservationRequest> {
+public class TimeRangeValidator implements ConstraintValidator<ValidReservationTimeRange, ReservationRequestDto> {
 
-    public boolean isValid(ReservationRequest request, ConstraintValidatorContext context) {
+    public boolean isValid(ReservationRequestDto request, ConstraintValidatorContext context) {
         LocalDateTime starTime = request.getStartTime();
         LocalDateTime endTime = request.getEndTime();
 

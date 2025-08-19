@@ -1,6 +1,8 @@
 package com.example.meetingroom.entity;
 
 import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
+import com.example.meetingroom.exception.CustomException;
+import com.example.meetingroom.exception.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -36,13 +38,22 @@ public class MeetingRoom {
         this.pricePerHour = pricePerHour;
     }
 
-    public MeetingRoomResponseDto toResponseEntity() {
-        return MeetingRoomResponseDto.builder()
-            .id(getId())
-            .name(getName())
-            .capacity(getCapacity())
-            .pricePerHour(getPricePerHour())
-            .build();
+    public void isCapacityLargerThanZero(){
+        if(this.capacity<1){
+            throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
+        }
+    }
+
+    public void isPricePerHourLargerThanZero(){
+        if(this.pricePerHour.compareTo(BigDecimal.ONE) < 0){
+            throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
+        }
+    }
+
+    public void isDuplicatedName(String name){
+        if(this.name.equals(name)){
+            throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
+        }
     }
 
     public void update(
