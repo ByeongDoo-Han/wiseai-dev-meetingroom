@@ -34,8 +34,6 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    private final PaymentsService paymentsService;
-
 
     @Operation(summary = "회의실 예약 생성", description = "특정 회의실을 지정된 시간 동안 예약합니다.")
     @ApiResponses(value = {
@@ -112,7 +110,7 @@ public class ReservationController {
         @ApiResponse(responseCode = "500", description = "결제사 연동 오류 또는 서버 오류", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/{id}/payment")
-    public ResponseEntity<CustomResponseEntity<PaymentResult>> processPayment(
+    public ResponseEntity<CustomResponseEntity<PaymentResult<?>>> processPayment(
         @AuthenticationPrincipal MemberDetails memberDetails,
         @RequestBody PaymentRequest request,
         @PathVariable Long id) {

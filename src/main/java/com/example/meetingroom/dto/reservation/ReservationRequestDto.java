@@ -21,8 +21,6 @@ public class ReservationRequestDto {
     private LocalDateTime startTime;
 
     @NotNull
-    @Future(message = "예약 종료 시간은 현재 시간 이후여야 합니다.")
-    @ValidReservationTime
     private LocalDateTime endTime;
 
     @Builder
