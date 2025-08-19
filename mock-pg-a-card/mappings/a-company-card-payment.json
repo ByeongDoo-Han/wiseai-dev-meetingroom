@@ -12,7 +12,13 @@
     },
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.amount > 0)]"
+        "matchesJsonPath": "$[?(@.cardNumber != null && @.cardNumber !='')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.cardCvc != null && @.cardCvc != '')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.cardExpiryDate != null && @.cardExpiryDate !='')]"
       }
     ]
   },
@@ -23,8 +29,8 @@
     },
     "jsonBody": {
       "transactionId": "mock_card_tx_12345",
-      "resultCode": "00",
-      "message": "Mock 승인완료"
+      "resultCode": "Success",
+      "message": "Mock Card 승인완료"
     }
   }
 }
