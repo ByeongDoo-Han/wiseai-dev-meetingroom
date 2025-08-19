@@ -43,7 +43,7 @@ out/
 .env
 
 ## dev ###
-**/src/main/resources/application-dev.yml
+/src/main/resources/application-dev.yml
 
 ### test ###
-**/src/test/resources/application-test.yml
+/src/test/resources/application-test.yml

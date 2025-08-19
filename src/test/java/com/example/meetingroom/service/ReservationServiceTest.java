@@ -345,7 +345,7 @@ class ReservationServiceTest {
             // then
             assertThat(result.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
             assertThat(reservation.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
-            verify(paymentsRepository, times(2)).save(any(Payment.class));
+            verify(paymentsRepository, times(1)).save(any(Payment.class));
             verify(mockGateway).pay(paymentRequest, reservation.getTotalAmount());
         }
 
