@@ -4,8 +4,6 @@ import com.example.meetingroom.dto.payment.PaymentRequest;
 import com.example.meetingroom.dto.payment.PaymentResult;
 import com.example.meetingroom.dto.reservation.ReservationRequestDto;
 import com.example.meetingroom.dto.reservation.ReservationResponseDto;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
-import com.example.meetingroom.service.PaymentsService;
 import com.example.meetingroom.service.ReservationService;
 import com.example.meetingroom.util.CustomResponseEntity;
 import com.example.meetingroom.util.MemberDetails;
@@ -33,8 +31,6 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
-
-    private final PaymentsService paymentsService;
 
 
     @Operation(summary = "회의실 예약 생성", description = "특정 회의실을 지정된 시간 동안 예약합니다.")
@@ -77,10 +73,10 @@ public class ReservationController {
     public ResponseEntity<CustomResponseEntity<ReservationResponseDto>> updateReservation(
         @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails memberDetails,
         @Parameter(description = "수정할 예약의 ID") @PathVariable Long id,
-        @Valid @RequestBody ReservationUpdateRequestDto request
+        @Valid @RequestBody ReservationRequestDto request
     ) {
         return ResponseUtil.success(
-            reservationService.updateReservation(memberDetails.getUsername(), request),
+            reservationService.updateReservation(id, memberDetails.getUsername(), request),
             SuccessMessage.UPDATE_RESERVATION_SUCCESS
         );
     }
@@ -112,7 +108,7 @@ public class ReservationController {
         @ApiResponse(responseCode = "500", description = "결제사 연동 오류 또는 서버 오류", content = @Content(schema = @Schema(hidden = true)))
     })
     @PostMapping("/{id}/payment")
-    public ResponseEntity<CustomResponseEntity<PaymentResult>> processPayment(
+    public ResponseEntity<CustomResponseEntity<PaymentResult<?>>> processPayment(
         @AuthenticationPrincipal MemberDetails memberDetails,
         @RequestBody PaymentRequest request,
         @PathVariable Long id) {

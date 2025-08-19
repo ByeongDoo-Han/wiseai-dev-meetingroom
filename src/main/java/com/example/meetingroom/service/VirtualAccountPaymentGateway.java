@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Component
@@ -26,15 +27,20 @@ public class VirtualAccountPaymentGateway implements PaymentGateway {
     private static final String CLIENT_SECRET = "C_CLIENT_SECRET";
 
     @Override
+    public PaymentProviderType getProviderType() {
+        return PaymentProviderType.VIRTUAL_ACCOUNT;
+    }
+
+    @Override
     public boolean supports(PaymentProviderType providerType) {
         return providerType == PaymentProviderType.VIRTUAL_ACCOUNT;
     }
 
     @Override
-    public PaymentResult pay(PaymentRequest request) {
+    public PaymentResult<VirtualAccountApiResponse> pay(PaymentRequest request, BigDecimal totalAmount) {
         VirtualAccountApiRequest apiRequest = VirtualAccountApiRequest.builder()
             .product("회의실 예약")
-            .price(request.getAmount())
+            .price(totalAmount)
             .build();
 
         HttpHeaders headers = new HttpHeaders();
@@ -55,12 +61,12 @@ public class VirtualAccountPaymentGateway implements PaymentGateway {
             message = "가상계좌 발급 실패";
         }
 
-        return PaymentResult.builder()
+        return PaymentResult.<VirtualAccountApiResponse>builder()
             .paymentId(isSuccess ? response.getAccountNum() : null)
             .status(isSuccess ? PaymentStatus.PENDING : PaymentStatus.FAILED)
-            .createdAt(LocalDateTime.now())
-            .amount(request.getAmount())
+            .amount(totalAmount)
             .message(message)
+            .details(response)
             .build();
     }
 }

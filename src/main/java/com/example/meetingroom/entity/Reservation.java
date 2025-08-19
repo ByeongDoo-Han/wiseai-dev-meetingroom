@@ -1,12 +1,11 @@
 package com.example.meetingroom.entity;
 
-import com.example.meetingroom.dto.reservation.ReservationResponseDto;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,9 +13,8 @@ import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Reservation {
 
     @Id
@@ -85,7 +83,7 @@ public class Reservation {
     }
 
     public void validIsNotZero(){
-        if(this.endTime.equals(this.startTime)){
+        if(endTime.isEqual(startTime)){
             throw new CustomException(ErrorCode.MEETING_ROOM_TIME_IS_ZERO);
         }
     }
@@ -95,5 +93,17 @@ public class Reservation {
         long minutes = ChronoUnit.MINUTES.between(this.startTime, this.endTime) % 60;
         BigDecimal totalHours = BigDecimal.valueOf(hours).add(BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_HALF_UP));
         return pricePerHour.multiply(totalHours);
+    }
+
+    @Builder
+    public Reservation(final Long id, final Member member, final MeetingRoom meetingRoom, final LocalDateTime startTime, final LocalDateTime endTime, final BigDecimal totalAmount, final PaymentStatus paymentStatus) {
+        this.id = id;
+        this.member = member;
+        this.meetingRoom = meetingRoom;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.paymentStatus = paymentStatus;
+        valid();
+        this.totalAmount = calculateTotalPrice(meetingRoom.getPricePerHour());
     }
 }

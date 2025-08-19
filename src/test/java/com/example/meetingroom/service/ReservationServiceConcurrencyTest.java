@@ -1,7 +1,6 @@
 package com.example.meetingroom.service;
 
 import com.example.meetingroom.dto.reservation.ReservationRequestDto;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
 import com.example.meetingroom.entity.*;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
@@ -132,13 +131,13 @@ public class ReservationServiceConcurrencyTest {
             .totalAmount(new BigDecimal("1000"))
             .build());
 
-        ReservationUpdateRequestDto requestA = ReservationUpdateRequestDto.builder()
-            .reservationId(reservationA.getId()).meetingRoomId(meetingRoom.getId())
+        ReservationRequestDto requestA = ReservationRequestDto.builder()
+            .meetingRoomId(meetingRoom.getId())
             .startTime(reservationB.getStartTime()).endTime(reservationB.getEndTime())
             .build();
 
-        ReservationUpdateRequestDto requestB = ReservationUpdateRequestDto.builder()
-            .reservationId(reservationB.getId()).meetingRoomId(meetingRoom.getId())
+        ReservationRequestDto requestB = ReservationRequestDto.builder()
+            .meetingRoomId(meetingRoom.getId())
             .startTime(reservationA.getStartTime()).endTime(reservationA.getEndTime())
             .build();
 
@@ -153,7 +152,7 @@ public class ReservationServiceConcurrencyTest {
             try {
                 latch.countDown();
                 latch.await();
-                reservationService.updateReservation(memberA.getUsername(), requestA);
+                reservationService.updateReservation(reservationA.getId(), memberA.getUsername(), requestA);
                 successCount.incrementAndGet();
             } catch (CustomException | InterruptedException e) {
                 failCount.incrementAndGet();
@@ -164,7 +163,7 @@ public class ReservationServiceConcurrencyTest {
             try {
                 latch.countDown();
                 latch.await();
-                reservationService.updateReservation(memberB.getUsername(), requestB);
+                reservationService.updateReservation(reservationB.getId(), memberB.getUsername(), requestB);
                 successCount.incrementAndGet();
 
             } catch (CustomException | InterruptedException e) {
