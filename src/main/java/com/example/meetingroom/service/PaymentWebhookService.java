@@ -37,7 +37,5 @@ public class PaymentWebhookService {
         } else if (newStatus == PaymentStatus.PENDING) {
             throw new CustomException(ErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
         }
-
-        // paymentRepository.save(payment); // @Transactional이므로 변경 감지(dirty checking)에 의해 자동 저장
     }
 }
