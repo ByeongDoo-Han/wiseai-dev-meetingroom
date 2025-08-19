@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 
 public interface PaymentGateway {
 
-    PaymentProviderType getProviderType();
-
     boolean supports(PaymentProviderType providerType);
 
     PaymentResult<?> pay(PaymentRequest request, BigDecimal totalAmount);
+
+    PaymentProviderType getProviderType();
 }
