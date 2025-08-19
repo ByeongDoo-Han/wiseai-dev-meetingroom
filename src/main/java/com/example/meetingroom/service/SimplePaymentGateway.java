@@ -5,8 +5,6 @@ import com.example.meetingroom.dto.payment.PaymentResult;
 import com.example.meetingroom.dto.payment.simple.SimplePaymentApiRequest;
 import com.example.meetingroom.entity.PaymentProviderType;
 import com.example.meetingroom.entity.PaymentStatus;
-import com.example.meetingroom.exception.CustomException;
-import com.example.meetingroom.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -15,8 +13,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Base64;
 
 @Component
@@ -29,6 +27,10 @@ public class SimplePaymentGateway implements PaymentGateway {
     private static final String API_KEY = "B_COMPANY_API_KEY";
     private static final String API_SECRET = "B_COMPANY_API_SECRET";
 
+    @Override
+    public PaymentProviderType getProviderType() {
+        return PaymentProviderType.SIMPLE_PAYMENT;
+    }
 
     @Override
     public boolean supports(PaymentProviderType providerType) {
@@ -36,7 +38,7 @@ public class SimplePaymentGateway implements PaymentGateway {
     }
 
     @Override
-    public PaymentResult pay(PaymentRequest request) {
+    public PaymentResult<?> pay(PaymentRequest request, BigDecimal totalAmount) {
         SimplePaymentApiRequest apiRequest = objectMapper.convertValue(request, SimplePaymentApiRequest.class);
 
         HttpHeaders headers = new HttpHeaders();
@@ -46,7 +48,6 @@ public class SimplePaymentGateway implements PaymentGateway {
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("user_id", apiRequest.getUserId());
-        map.add("amount", request.getAmount().toPlainString());
 
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
 
@@ -58,12 +59,12 @@ public class SimplePaymentGateway implements PaymentGateway {
             paymentId = response.getBody().split("|")[1];
         }
 
-        return PaymentResult.builder()
+        return PaymentResult.<ResponseEntity<String>>builder()
             .paymentId(paymentId)
             .status(isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED)
-            .amount(request.getAmount())
-            .createdAt(LocalDateTime.now())
+            .amount(totalAmount)
             .message(isSuccess ? "간편결제 성공" : "간편결제 실패")
+            .details(response)
             .build();
     }
 }
