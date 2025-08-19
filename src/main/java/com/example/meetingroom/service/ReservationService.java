@@ -5,7 +5,6 @@ import com.example.meetingroom.dto.payment.PaymentRequest;
 import com.example.meetingroom.dto.payment.PaymentResult;
 import com.example.meetingroom.dto.reservation.ReservationRequestDto;
 import com.example.meetingroom.dto.reservation.ReservationResponseDto;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
 import com.example.meetingroom.entity.*;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
@@ -78,8 +77,8 @@ public class ReservationService {
 
     @Transactional
     @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
-    public ReservationResponseDto updateReservation(final String username, final ReservationUpdateRequestDto request) {
-        Reservation reservation = reservationRepository.findById(request.getReservationId()).orElseThrow(
+    public ReservationResponseDto updateReservation(final Long id, final String username, final ReservationRequestDto request) {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
         );
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getMeetingRoomId()).orElseThrow(

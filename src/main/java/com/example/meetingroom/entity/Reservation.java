@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Reservation {
 
