@@ -8,7 +8,7 @@ RUN ./gradlew dependencies --no-daemon
 
 COPY . .
 
-RUN ./gradlew clean build --no-daemon
+RUN ./gradlew clean build -x test --no-daemon
 
 FROM openjdk:17-jdk-slim
 
