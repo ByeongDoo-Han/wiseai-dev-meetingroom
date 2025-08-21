@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "providerType"
+    property = "type"
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CardPaymentRequest.class, name = "CARD"),

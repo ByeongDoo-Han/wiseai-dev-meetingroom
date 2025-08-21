@@ -1,9 +1,9 @@
 package com.example.meetingroom.service;
 
 import com.example.meetingroom.dto.payment.PaymentWebhookRequest;
-import com.example.meetingroom.entity.Payment;
-import com.example.meetingroom.entity.PaymentStatus;
-import com.example.meetingroom.entity.Reservation;
+import com.example.meetingroom.entity.*;
+import com.example.meetingroom.exception.CustomException;
+import com.example.meetingroom.exception.ErrorCode;
 import com.example.meetingroom.repository.PaymentsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,20 +31,35 @@ class PaymentWebhookServiceTest {
 
     private Reservation reservation;
     private Payment payment;
+    private MeetingRoom room1;
+    private Member member;
 
     @BeforeEach
     void setUp() {
+        room1 = MeetingRoom.builder()
+            .id(1L)
+            .name("회의실 A")
+            .capacity(10)
+            .pricePerHour(new BigDecimal("10000"))
+            .build();
+        member = Member.builder().id(1L).role(Role.MEMBER).username("testuser").build();
+
         reservation = Reservation.builder()
-                .id(1L)
-                .paymentStatus(PaymentStatus.PENDING)
-                .build();
+            .id(1L)
+            .member(member)
+            .meetingRoom(room1)
+            .startTime(LocalDateTime.of(2025, 8, 10, 10, 0))
+            .endTime(LocalDateTime.of(2025, 8, 10, 11, 0))
+            .totalAmount(new BigDecimal("10000.00"))
+            .paymentStatus(PaymentStatus.PENDING)
+            .build();
 
         payment = Payment.builder()
-                .id(1L)
-                .externalPaymentId("ext_payment_id_123")
-                .status(PaymentStatus.PENDING)
-                .reservation(reservation)
-                .build();
+            .id(1L)
+            .externalPaymentId("ext_payment_id_123")
+            .status(PaymentStatus.PENDING)
+            .reservation(reservation)
+            .build();
     }
 
     @DisplayName("결제 성공 웹훅 처리 테스트")
@@ -90,6 +107,51 @@ class PaymentWebhookServiceTest {
         // then
         assertEquals(PaymentStatus.CANCELLED, payment.getStatus());
         assertEquals(PaymentStatus.CANCELLED, reservation.getPaymentStatus());
+        verify(paymentsRepository).findByExternalPaymentId("ext_payment_id_123");
+    }
+
+    @DisplayName("웹훅 처리 실패 - 결제 정보 없음")
+    @Test
+    void processWebhook_PaymentNotFound() {
+        // given
+        PaymentWebhookRequest request = new PaymentWebhookRequest("non_existent_id", "SUCCESS");
+        when(paymentsRepository.findByExternalPaymentId("non_existent_id")).thenReturn(Optional.empty());
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            paymentWebhookService.processPaymentStatusWebhook(request);
+        });
+        assertEquals(ErrorCode.PAYMENT_NOT_FOUND, exception.getErrorCode());
+        verify(paymentsRepository).findByExternalPaymentId("non_existent_id");
+    }
+
+    @DisplayName("웹훅 처리 실패 - 유효하지 않은 상태 문자열")
+    @Test
+    void processWebhook_InvalidStatusString() {
+        // given
+        PaymentWebhookRequest request = new PaymentWebhookRequest("ext_payment_id_123", "UNKNOWN_STATUS");
+        when(paymentsRepository.findByExternalPaymentId("ext_payment_id_123")).thenReturn(Optional.of(payment));
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            paymentWebhookService.processPaymentStatusWebhook(request);
+        });
+        assertEquals(ErrorCode.INVALID_PAYMENT_STATUS, exception.getErrorCode());
+        verify(paymentsRepository).findByExternalPaymentId("ext_payment_id_123");
+    }
+
+    @DisplayName("웹훅 처리 실패 - PENDING으로의 유효하지 않은 상태 전환")
+    @Test
+    void processWebhook_InvalidTransitionToPending() {
+        // given
+        PaymentWebhookRequest request = new PaymentWebhookRequest("ext_payment_id_123", "PENDING");
+        when(paymentsRepository.findByExternalPaymentId("ext_payment_id_123")).thenReturn(Optional.of(payment));
+
+        // when & then
+        CustomException exception = assertThrows(CustomException.class, () -> {
+            paymentWebhookService.processPaymentStatusWebhook(request);
+        });
+        assertEquals(ErrorCode.INVALID_PAYMENT_STATUS_TRANSITION, exception.getErrorCode());
         verify(paymentsRepository).findByExternalPaymentId("ext_payment_id_123");
     }
 }

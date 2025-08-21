@@ -37,7 +37,12 @@ out/
 .vscode/
 
 ### gradle ###
-.build/
 
 ### env ###
 .env
+
+## dev ###
+/src/main/resources/application-dev.yml
+
+### test ###
+/src/test/resources/application-test.yml

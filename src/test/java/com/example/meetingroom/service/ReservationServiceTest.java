@@ -1,16 +1,16 @@
 package com.example.meetingroom.service;
 
+import com.example.meetingroom.dto.payment.PaymentResult;
+import com.example.meetingroom.dto.payment.card.CardPaymentRequest;
+import com.example.meetingroom.dto.payment.simple.SimplePaymentRequest;
 import com.example.meetingroom.dto.reservation.ReservationRequestDto;
 import com.example.meetingroom.dto.reservation.ReservationResponseDto;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
-import com.example.meetingroom.entity.MeetingRoom;
-import com.example.meetingroom.entity.Member;
-import com.example.meetingroom.entity.Reservation;
-import com.example.meetingroom.entity.Role;
+import com.example.meetingroom.entity.*;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import com.example.meetingroom.repository.MeetingRoomRepository;
 import com.example.meetingroom.repository.MemberRepository;
+import com.example.meetingroom.repository.PaymentsRepository;
 import com.example.meetingroom.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,14 +23,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReservationService 테스트")
@@ -48,6 +48,15 @@ class ReservationServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private PaymentsRepository paymentsRepository;
+
+    @Mock
+    private Map<PaymentProviderType, PaymentGateway> paymentGateways;
+
+    @Mock
+    private PaymentGateway mockGateway;
+
     private Member member;
     private MeetingRoom meetingRoom;
     private Reservation reservation;
@@ -63,6 +72,7 @@ class ReservationServiceTest {
                 .startTime(LocalDateTime.of(2025, 8, 10, 10, 0))
                 .endTime(LocalDateTime.of(2025, 8, 10, 11, 0))
                 .totalAmount(new BigDecimal("10000.00"))
+                .paymentStatus(PaymentStatus.PENDING)
                 .build();
     }
 
@@ -212,15 +222,14 @@ class ReservationServiceTest {
             // given
             LocalDateTime newStartTime = LocalDateTime.of(2025, 8, 11, 14, 0);
             LocalDateTime newEndTime = newStartTime.plusHours(3); // 3시간으로 변경
-            ReservationUpdateRequestDto request = ReservationUpdateRequestDto.builder()
-                    .reservationId(1L)
+            ReservationRequestDto request = ReservationRequestDto.builder()
                     .meetingRoomId(1L) // 회의실은 변경하지 않음
                     .startTime(newStartTime)
                     .endTime(newEndTime)
                     .build();
 
             // 서비스 로직에서 필요한 repository 호출들을 mocking
-            given(reservationRepository.findById(request.getReservationId())).willReturn(Optional.of(reservation));
+            given(reservationRepository.findById(1L)).willReturn(Optional.of(reservation));
             given(memberRepository.findMemberByUsername(member.getUsername())).willReturn(Optional.of(member));
             given(meetingRoomRepository.findById(request.getMeetingRoomId())).willReturn(Optional.of(meetingRoom));
             // 수정하려는 시간을 포함하여 중복 검사 시, 중복이 없다고 설정
@@ -229,7 +238,7 @@ class ReservationServiceTest {
             )).willReturn(false);
 
             // when
-            ReservationResponseDto response = reservationService.updateReservation(member.getUsername(), request);
+            ReservationResponseDto response = reservationService.updateReservation(1L,member.getUsername(), request);
 
             // then
             // 응답 DTO의 값이 요청에 맞게 변경되었는지 확인
@@ -243,19 +252,18 @@ class ReservationServiceTest {
         @DisplayName("실패 - 존재하지 않는 예약")
         void update_fail_reservation_not_found() {
             // given
-            ReservationUpdateRequestDto request = ReservationUpdateRequestDto.builder()
-                    .reservationId(99L) // 존재하지 않는 예약 ID
+            ReservationRequestDto request = ReservationRequestDto.builder()
                     .meetingRoomId(1L)
                     .startTime(LocalDateTime.now())
                     .endTime(LocalDateTime.now().plusHours(1))
                     .build();
 
             // 존재하지 않는 ID로 조회 시 Optional.empty()를 반환하도록 설정
-            given(reservationRepository.findById(request.getReservationId())).willReturn(Optional.empty());
+            given(reservationRepository.findById(99L)).willReturn(Optional.empty());
 
             // when & then
             // 예외 발생을 검증
-            assertThatThrownBy(() -> reservationService.updateReservation(member.getUsername(), request))
+            assertThatThrownBy(() -> reservationService.updateReservation(99L,member.getUsername(), request))
                     .isInstanceOf(CustomException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.RESERVATION_NOT_FOUND);
         }
@@ -267,16 +275,15 @@ class ReservationServiceTest {
             // builder를 사용하여 예약 요청 DTO 생성
             LocalDateTime startTime = LocalDateTime.of(2025, 9, 1, 10, 0);
             LocalDateTime endTime = startTime.plusHours(2);
-            ReservationUpdateRequestDto request = ReservationUpdateRequestDto.builder()
+            ReservationRequestDto request = ReservationRequestDto.builder()
                 .meetingRoomId(1L)
-                .reservationId(1L)
                 .startTime(startTime)
                 .endTime(endTime)
                 .build();
 
             // Repository Mocking 설정
             // 사용자 조회와 회의실 조회는 성공한 것으로 설정
-            given(reservationRepository.findById(request.getReservationId())).willReturn(Optional.of(reservation));
+            given(reservationRepository.findById(1L)).willReturn(Optional.of(reservation));
             given(memberRepository.findMemberByUsername(member.getUsername())).willReturn(Optional.of(member));
             given(meetingRoomRepository.findById(request.getMeetingRoomId())).willReturn(Optional.of(meetingRoom));
 
@@ -290,7 +297,7 @@ class ReservationServiceTest {
 
             // when & then
             // 예외가 발생하는 것을 검증
-            assertThatThrownBy(() -> reservationService.updateReservation(member.getUsername(), request))
+            assertThatThrownBy(() -> reservationService.updateReservation(1L,member.getUsername(), request))
                 // CustomException 클래스의 예외가 발생하는지 확인
                 .isInstanceOf(CustomException.class)
                 // 해당 예외의 errorCode 필드 값이 RESERVATION_TIME_CONFLICT 인지 확인
@@ -298,6 +305,86 @@ class ReservationServiceTest {
 
             // 시간이 중복되어 예외가 발생했으므로, save 메소드가 절대 호출되지 않았는지 검증
             verify(reservationRepository, never()).save(any(Reservation.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("결제 처리 테스트")
+    class ProcessPaymentTest {
+
+        private CardPaymentRequest paymentRequest;
+
+        @BeforeEach
+        void setUp() {
+            paymentRequest = CardPaymentRequest.builder()
+                .providerType(PaymentProviderType.CARD)
+                .cardNumber("1234-1234-1234-1234")
+                .cardCvc("123")
+                .cardExpiryDate("12-34")
+                .build();
+        }
+
+        @Test
+        @DisplayName("성공")
+        void processPayment_success() {
+            // given
+            PaymentResult successResult = PaymentResult.builder()
+                    .status(PaymentStatus.SUCCESS)
+                    .externalPaymentId("ext_payment_123")
+                    .build();
+            Payment pendingPayment = Payment.builder().id(1L).status(PaymentStatus.PENDING).build();
+
+            given(reservationRepository.findById(reservation.getId())).willReturn(Optional.of(reservation));
+            given(paymentGateways.get(PaymentProviderType.CARD)).willReturn(mockGateway);
+            given(paymentsRepository.save(any(Payment.class))).willReturn(pendingPayment);
+            given(mockGateway.pay(paymentRequest, reservation.getTotalAmount())).willReturn(successResult);
+
+            // when
+            PaymentResult<?> result = reservationService.processPayment(reservation.getId(), paymentRequest, member.getUsername());
+
+            // then
+            assertThat(result.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            assertThat(reservation.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            verify(paymentsRepository, times(1)).save(any(Payment.class));
+            verify(mockGateway).pay(paymentRequest, reservation.getTotalAmount());
+        }
+
+        @Test
+        @DisplayName("실패 - 결제 게이트웨이 실패")
+        void processPayment_fail_gateway_failure() {
+            // given
+            PaymentResult failureResult = PaymentResult.builder()
+                    .status(PaymentStatus.FAILED)
+                    .build();
+            Payment pendingPayment = Payment.builder().id(1L).status(PaymentStatus.PENDING).build();
+
+            given(reservationRepository.findById(reservation.getId())).willReturn(Optional.of(reservation));
+            given(paymentGateways.get(PaymentProviderType.CARD)).willReturn(mockGateway);
+            given(paymentsRepository.save(any(Payment.class))).willReturn(pendingPayment);
+            given(mockGateway.pay(paymentRequest, reservation.getTotalAmount())).willReturn(failureResult);
+
+            // when
+            PaymentResult<?> result = reservationService.processPayment(reservation.getId(), paymentRequest, member.getUsername());
+
+            // then
+            assertThat(result.getStatus()).isEqualTo(PaymentStatus.FAILED);
+            assertThat(reservation.getPaymentStatus()).isEqualTo(PaymentStatus.FAILED);
+        }
+
+        @Test
+        @DisplayName("실패 - 지원하지 않는 결제 프로바이더")
+        void processPayment_fail_provider_not_found() {
+            // given
+            SimplePaymentRequest request = SimplePaymentRequest.builder()
+                .simplePaymentProvider("abc")
+                .build();
+
+            given(reservationRepository.findById(reservation.getId())).willReturn(Optional.of(reservation));
+
+            // when & then
+            assertThatThrownBy(() -> reservationService.processPayment(reservation.getId(), request, member.getUsername()))
+                    .isInstanceOf(CustomException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PAYMENT_PROVIDER_NOT_FOUND);
         }
     }
 }

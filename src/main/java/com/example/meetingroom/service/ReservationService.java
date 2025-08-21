@@ -1,13 +1,11 @@
 package com.example.meetingroom.service;
 
 import com.example.meetingroom.aop.DistributedLock;
+import com.example.meetingroom.dto.payment.PaymentRequest;
+import com.example.meetingroom.dto.payment.PaymentResult;
 import com.example.meetingroom.dto.reservation.ReservationRequestDto;
 import com.example.meetingroom.dto.reservation.ReservationResponseDto;
-import com.example.meetingroom.dto.reservation.ReservationUpdateRequestDto;
-import com.example.meetingroom.entity.MeetingRoom;
-import com.example.meetingroom.entity.Member;
-import com.example.meetingroom.entity.PaymentStatus;
-import com.example.meetingroom.entity.Reservation;
+import com.example.meetingroom.entity.*;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import com.example.meetingroom.repository.MeetingRoomRepository;
@@ -24,6 +22,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -33,8 +32,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberRepository memberRepository;
-    private final PaymentsService paymentService;
     private final PaymentsRepository paymentRepository;
+    private final Map<PaymentProviderType, PaymentGateway> paymentGateways;
 
     @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
     @Transactional
@@ -61,7 +60,6 @@ public class ReservationService {
             .meetingRoom(meetingRoom)
             .member(member)
             .build();
-        reservation.valid();
         reservationRepository.save(reservation);
         return ReservationResponseDto.from(reservation);
     }
@@ -78,8 +76,8 @@ public class ReservationService {
 
     @Transactional
     @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
-    public ReservationResponseDto updateReservation(final String username, final ReservationUpdateRequestDto request) {
-        Reservation reservation = reservationRepository.findById(request.getReservationId()).orElseThrow(
+    public ReservationResponseDto updateReservation(final Long id, final String username, final ReservationRequestDto request) {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
         );
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getMeetingRoomId()).orElseThrow(
@@ -105,7 +103,6 @@ public class ReservationService {
             request.getEndTime(),
             calculateTotalPrice(request.getStartTime(), request.getEndTime(), meetingRoom.getPricePerHour()),
             meetingRoom);
-        reservationRepository.save(reservation);
         return ReservationResponseDto.from(reservation);
     }
 
@@ -128,5 +125,52 @@ public class ReservationService {
             throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
         }
         reservationRepository.deleteById(reservationId);
+    }
+
+    @Transactional
+    @DistributedLock(key = "#id", lockName = RESERVATION_LOCK_PREFIX)
+    public PaymentResult<?> processPayment(Long id, PaymentRequest request, String username) {
+        // 1. 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(id)
+            .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        // 2. 예약 소유권 확인
+        if (username == null) {
+            throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+        if (!reservation.getMember().getUsername().equals(username)) {
+            throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+
+        // 2.1 결제 됐는지 확인
+        if(reservation.getPaymentStatus().equals(PaymentStatus.SUCCESS)){
+            throw new CustomException(ErrorCode.RESERVATION_ALREADY_PAID);
+        }
+
+        // 3. 전략 설정
+        PaymentGateway gateway = paymentGateways.get(request.getProviderType());
+        if(gateway == null){
+            throw new CustomException(ErrorCode.PAYMENT_PROVIDER_NOT_FOUND);
+        }
+
+        // 4. 결제 객체 생성 및 저장
+        Payment firstPayment = Payment.builder()
+            .paymentProviderType(request.getProviderType())
+            .reservation(reservation)
+            .amount(reservation.getTotalAmount())
+            .status(PaymentStatus.PENDING)
+            .build();
+        Payment savedPayment = paymentRepository.save(firstPayment);
+
+        // 5. 게이트웨이를 통해 결제 실행
+        PaymentResult<?> result = gateway.pay(request, reservation.getTotalAmount());
+
+        // 6. 결제 결과에 따른 결제 객체 변경
+        savedPayment.update(result.getStatus(), result.getExternalPaymentId());
+
+        // 7. 예약 상태 업데이트
+        reservation.updatePaymentStatus(result.getStatus());
+
+        return result;
     }
 }
