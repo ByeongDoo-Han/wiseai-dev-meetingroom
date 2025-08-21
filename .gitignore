@@ -37,7 +37,6 @@ out/
 .vscode/
 
 ### gradle ###
-.build/
 
 ### env ###
 .env

@@ -15,7 +15,6 @@ import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    List<Reservation> findByMeetingRoomAndPaymentStatus(MeetingRoom meetingRoom, PaymentStatus paymentStatus);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END "
