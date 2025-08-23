@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +24,7 @@ public class MeetingRoomService {
     private final MeetingRoomRepository meetingRoomRepository;
 
     public List<MeetingRoomResponseDto> getAllMeetingRooms() {
-        List<MeetingRoom> foundMeetingRoomList = meetingRoomRepository.findAll();
-        List<MeetingRoomResponseDto> responseDtoList = new ArrayList<>();
-        for (MeetingRoom meetingRoom : foundMeetingRoomList) {
-            MeetingRoomResponseDto dto = MeetingRoomResponseDto.builder()
-                .id(meetingRoom.getId())
-                .name(meetingRoom.getName())
-                .pricePerHour(meetingRoom.getPricePerHour())
-                .capacity(meetingRoom.getCapacity())
-                .build();
-            responseDtoList.add(dto);
-        }
-        return responseDtoList;
+        return meetingRoomRepository.findAll().stream().map(MeetingRoomResponseDto::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional
@@ -49,7 +39,7 @@ public class MeetingRoomService {
             .pricePerHour(meetingRoomRequestDto.getPricePerHour())
             .build();
         MeetingRoom newMeetingRoom = meetingRoomRepository.save(meetingRoom);
-        return MeetingRoomResponseDto.from(newMeetingRoom);
+        return MeetingRoomResponseDto.fromEntity(newMeetingRoom);
     }
 
     @Transactional
@@ -60,7 +50,7 @@ public class MeetingRoomService {
         foundMeetingRoom.update(meetingRoomRequestDto.getName(),
             meetingRoomRequestDto.getCapacity(),
             meetingRoomRequestDto.getPricePerHour());
-        return MeetingRoomResponseDto.from(foundMeetingRoom);
+        return MeetingRoomResponseDto.fromEntity(foundMeetingRoom);
     }
 
     @Transactional
