@@ -33,11 +33,7 @@ public class MeetingRoomService {
             throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
         }
 
-        MeetingRoom meetingRoom = MeetingRoom.builder()
-            .name(meetingRoomRequestDto.getName())
-            .capacity(meetingRoomRequestDto.getCapacity())
-            .pricePerHour(meetingRoomRequestDto.getPricePerHour())
-            .build();
+        MeetingRoom meetingRoom = MeetingRoom.toEntity(meetingRoomRequestDto);
         MeetingRoom newMeetingRoom = meetingRoomRepository.save(meetingRoom);
         return MeetingRoomResponseDto.fromEntity(newMeetingRoom);
     }

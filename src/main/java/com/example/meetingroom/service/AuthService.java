@@ -26,11 +26,7 @@ public class AuthService {
             throw new CustomException(ErrorCode.USER_ALREADY_EXISTED);
         }
         String encodedPassword = passwordEncoder.encode(registerMemberDto.getPassword());
-        Member member = Member.builder()
-            .username(registerMemberDto.getUsername())
-            .password(encodedPassword)
-            .role(Role.MEMBER)
-            .build();
+        Member member = Member.createNewMember(registerMemberDto,encodedPassword);
         memberRepository.save(member);
         return RegisterMemberResponseDto.from(member);
     }
