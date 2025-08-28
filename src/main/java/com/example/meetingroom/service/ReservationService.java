@@ -51,7 +51,9 @@ public class ReservationService {
         }
 
         Reservation reservation = Reservation.create(request, member, meetingRoom);
+        Payment payment = Payment.createWithReservation(reservation);
         reservationRepository.save(reservation);
+        paymentRepository.save(payment);
         return ReservationResponseDto.from(reservation);
     }
 
@@ -129,19 +131,15 @@ public class ReservationService {
         }
 
         // 4. 결제 객체 생성 및 저장
-        Payment firstPayment = Payment.builder()
-            .paymentProviderType(request.getProviderType())
-            .reservation(reservation)
-            .amount(reservation.getTotalAmount())
-            .status(PaymentStatus.PENDING)
-            .build();
-        Payment savedPayment = paymentRepository.save(firstPayment);
+        Payment payment = paymentRepository.findByReservationId(reservation.getId()).orElseThrow(
+            () -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND)
+        );
 
         // 5. 게이트웨이를 통해 결제 실행
         PaymentResult<?> result = gateway.pay(request, reservation.getTotalAmount());
 
         // 6. 결제 결과에 따른 결제 객체 변경
-        savedPayment.update(result.getStatus(), result.getExternalPaymentId());
+        payment.update(result.getStatus(), result.getExternalPaymentId());
 
         // 7. 예약 상태 업데이트
         reservation.updatePaymentStatus(result.getStatus());
