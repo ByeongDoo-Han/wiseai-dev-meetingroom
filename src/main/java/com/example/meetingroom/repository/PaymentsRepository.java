@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface PaymentsRepository extends JpaRepository<Payment, Long> {
     // 웹훅 처리를 위해 externalPaymentId로 Payment를 조회하는 메소드 추가
     Optional<Payment> findByExternalPaymentId(String externalPaymentId);
+
+    Optional<Payment> findByReservationId(Long reservationId);
 }

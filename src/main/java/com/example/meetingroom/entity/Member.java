@@ -1,10 +1,8 @@
 package com.example.meetingroom.entity;
 
-import com.example.meetingroom.dto.auth.RegisterMemberResponseDto;
+import com.example.meetingroom.dto.auth.RegisterMemberRequestDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,20 +15,20 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    @NotNull
     private String username;
-    @NotNull
     @Column(nullable = false)
     private String password;
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
-    @Builder
-    public Member(Long id, String username, String password, Role role) {
-        this.id = id;
+    private Member(String username, String password, Role role) {
         this.password = password;
         this.username = username;
         this.role = role;
+    }
+
+    public static Member createNewMember(RegisterMemberRequestDto dto, String encodedPassword){
+        return new Member(dto.getUsername(), encodedPassword, Role.MEMBER);
     }
 }

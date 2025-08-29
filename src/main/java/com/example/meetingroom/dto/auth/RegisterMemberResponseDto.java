@@ -12,18 +12,12 @@ public class RegisterMemberResponseDto {
     private String username;
     private Role role;
 
-    @Builder
-    public RegisterMemberResponseDto(Long id, String username, Role role) {
-        this.id = id;
+    private RegisterMemberResponseDto(String username, Role role) {
         this.username = username;
         this.role = role;
     }
 
     public static RegisterMemberResponseDto from(Member member){
-        return RegisterMemberResponseDto.builder()
-            .id(member.getId())
-            .role(member.getRole())
-            .username(member.getUsername())
-            .build();
+        return new RegisterMemberResponseDto(member.getUsername(), member.getRole());
     }
 }

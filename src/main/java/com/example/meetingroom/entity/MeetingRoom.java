@@ -1,12 +1,10 @@
 package com.example.meetingroom.entity;
 
-import com.example.meetingroom.dto.meetingRoom.MeetingRoomResponseDto;
+import com.example.meetingroom.dto.meetingRoom.MeetingRoomRequestDto;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,47 +18,40 @@ public class MeetingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
     @Column(nullable = false, unique = true)
     private String name;
-    @NotNull
     @Column(nullable = false)
     private int capacity;
-    @NotNull
     @Column(precision = 10, nullable = false)
     private BigDecimal pricePerHour;
 
-    @Builder
-    public MeetingRoom(Long id, String name, int capacity, BigDecimal pricePerHour) {
-        this.id = id;
+    private MeetingRoom(String name, int capacity, BigDecimal pricePerHour) {
         this.name = name;
-        this.capacity = capacity;
-        this.pricePerHour = pricePerHour;
+        this.capacity = validCapacityLargerThanZero(capacity);
+        this.pricePerHour = validPricePerHourLargerThanZero(pricePerHour);
     }
 
-    public void isCapacityLargerThanZero(){
-        if(this.capacity<1){
+    private int validCapacityLargerThanZero(int capacity) {
+        if (capacity < 1) {
             throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
         }
+        return capacity;
     }
 
-    public void isPricePerHourLargerThanZero(){
-        if(this.pricePerHour.compareTo(BigDecimal.ONE) < 0){
+    private BigDecimal validPricePerHourLargerThanZero(BigDecimal pricePerHour) {
+        if (pricePerHour.compareTo(BigDecimal.ONE) < 0) {
             throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
         }
+        return pricePerHour;
     }
 
-    public void isDuplicatedName(String name){
-        if(this.name.equals(name)){
-            throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
-        }
-    }
-
-    public void update(
-        String name, int capacity, BigDecimal pricePerHour
-    ) {
+    public void update(String name, int capacity, BigDecimal pricePerHour) {
         this.name = name;
-        this.capacity = capacity;
-        this.pricePerHour = pricePerHour;
+        this.capacity = validCapacityLargerThanZero(capacity);
+        this.pricePerHour = validPricePerHourLargerThanZero(pricePerHour);
+    }
+
+    public static MeetingRoom create(final MeetingRoomRequestDto dto) {
+        return new MeetingRoom(dto.getName(), dto.getCapacity(), dto.getPricePerHour());
     }
 }
