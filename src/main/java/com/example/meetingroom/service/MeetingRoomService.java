@@ -33,7 +33,7 @@ public class MeetingRoomService {
             throw new CustomException(ErrorCode.MEETING_ROOM_ALREADY_EXISTED_NAME);
         }
 
-        MeetingRoom meetingRoom = MeetingRoom.toEntity(meetingRoomRequestDto);
+        MeetingRoom meetingRoom = MeetingRoom.create(meetingRoomRequestDto);
         MeetingRoom newMeetingRoom = meetingRoomRepository.save(meetingRoom);
         return MeetingRoomResponseDto.fromEntity(newMeetingRoom);
     }

@@ -51,7 +51,7 @@ public class MeetingRoom {
         this.pricePerHour = validPricePerHourLargerThanZero(pricePerHour);
     }
 
-    public static MeetingRoom toEntity(final MeetingRoomRequestDto dto) {
+    public static MeetingRoom create(final MeetingRoomRequestDto dto) {
         return new MeetingRoom(dto.getName(), dto.getCapacity(), dto.getPricePerHour());
     }
 }

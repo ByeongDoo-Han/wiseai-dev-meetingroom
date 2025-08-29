@@ -1,33 +1,23 @@
 package com.example.meetingroom.entity;
 
+import com.example.meetingroom.dto.payment.PaymentRequest;
 import com.example.meetingroom.exception.CustomException;
 import com.example.meetingroom.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@EntityListeners(AuditingEntityListener.class)
-public class Payment {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Payment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private PaymentProviderType paymentProviderType;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -37,19 +27,12 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus status;
 
-    @Column(nullable = true, unique = true)
+    @Column(unique = true)
     private String externalPaymentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime modifiedAt;
 
     public void markAsSuccess() {
         if (this.status != PaymentStatus.PENDING) {
@@ -75,15 +58,35 @@ public class Payment {
         this.reservation.updatePaymentStatus(PaymentStatus.CANCELLED);
     }
 
-    public void markAsPending() {
-        if (this.status != null) {
-            throw new CustomException(ErrorCode.INVALID_PAYMENT_STATUS_TRANSITION);
-        }
-        this.status = PaymentStatus.PENDING;
-    }
-
     public void update(final PaymentStatus status, final String externalPaymentId) {
         this.status = status;
         this.externalPaymentId = externalPaymentId;
+    }
+
+    private Payment(final PaymentProviderType paymentProviderType, final BigDecimal amount, final PaymentStatus status, final String externalPaymentId, final Reservation reservation) {
+        this.paymentProviderType = paymentProviderType;
+        this.amount = amount;
+        this.status = status;
+        this.externalPaymentId = externalPaymentId;
+        this.reservation = reservation;
+    }
+
+    public static Payment create(PaymentRequest request, Reservation reservation){
+        return new Payment(
+            request.getProviderType(),
+            reservation.getTotalAmount(),
+            PaymentStatus.PENDING,
+            null,
+            reservation);
+    }
+
+    public static Payment createWithReservation(Reservation reservation){
+        return new Payment(
+            null,
+            reservation.getTotalAmount(),
+            PaymentStatus.PENDING,
+            null,
+            reservation
+        );
     }
 }

@@ -45,22 +45,15 @@ public class ReservationService {
             () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         if (reservationRepository.existDuplicatedReservation(
-            request.getMeetingRoomId(),
-            request.getStartTime(),
-            request.getEndTime()
+            request.getMeetingRoomId(), request.getStartTime(), request.getEndTime()
         )) {
             throw new CustomException(ErrorCode.RESERVATION_TIME_CONFLICT);
         }
 
-        Reservation reservation = Reservation.builder()
-            .startTime(request.getStartTime())
-            .endTime(request.getEndTime())
-            .paymentStatus(PaymentStatus.PENDING)
-            .totalAmount(calculateTotalPrice(request.getStartTime(), request.getEndTime(), meetingRoom.getPricePerHour()))
-            .meetingRoom(meetingRoom)
-            .member(member)
-            .build();
+        Reservation reservation = Reservation.create(request, member, meetingRoom);
+        Payment payment = Payment.createWithReservation(reservation);
         reservationRepository.save(reservation);
+        paymentRepository.save(payment);
         return ReservationResponseDto.from(reservation);
     }
 
@@ -90,29 +83,13 @@ public class ReservationService {
             throw new CustomException(ErrorCode.HANDLE_ACCESS_DENIED);
         }
         if (reservationRepository.existDuplicatedReservationExcludingItself(
-            reservation.getId(),
-            request.getMeetingRoomId(),
-            request.getStartTime(),
-            request.getEndTime())
+            reservation.getId(), request.getMeetingRoomId(), request.getStartTime(), request.getEndTime())
         ) {
             throw new CustomException(ErrorCode.RESERVATION_TIME_CONFLICT);
         }
 
-        reservation.update(
-            request.getStartTime(),
-            request.getEndTime(),
-            calculateTotalPrice(request.getStartTime(), request.getEndTime(), meetingRoom.getPricePerHour()),
-            meetingRoom);
+        reservation.update(request.getStartTime(), request.getEndTime(), meetingRoom);
         return ReservationResponseDto.from(reservation);
-    }
-
-    private BigDecimal calculateTotalPrice(LocalDateTime startTime, LocalDateTime endTime, BigDecimal pricePerHour) {
-        Duration duration = Duration.between(startTime, endTime);
-        long minutes = duration.toMinutes();
-        BigDecimal totalMinutes = new BigDecimal(minutes);
-        BigDecimal sixty = new BigDecimal(60);
-        BigDecimal hours = totalMinutes.divide(sixty, 2, RoundingMode.HALF_UP);
-        return hours.multiply(pricePerHour);
     }
 
     @DistributedLock(key = "#reservationId", lockName = RESERVATION_LOCK_PREFIX)
@@ -143,30 +120,26 @@ public class ReservationService {
         }
 
         // 2.1 결제 됐는지 확인
-        if(reservation.getPaymentStatus().equals(PaymentStatus.SUCCESS)){
+        if (reservation.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
             throw new CustomException(ErrorCode.RESERVATION_ALREADY_PAID);
         }
 
         // 3. 전략 설정
         PaymentGateway gateway = paymentGateways.get(request.getProviderType());
-        if(gateway == null){
+        if (gateway == null) {
             throw new CustomException(ErrorCode.PAYMENT_PROVIDER_NOT_FOUND);
         }
 
         // 4. 결제 객체 생성 및 저장
-        Payment firstPayment = Payment.builder()
-            .paymentProviderType(request.getProviderType())
-            .reservation(reservation)
-            .amount(reservation.getTotalAmount())
-            .status(PaymentStatus.PENDING)
-            .build();
-        Payment savedPayment = paymentRepository.save(firstPayment);
+        Payment payment = paymentRepository.findByReservationId(reservation.getId()).orElseThrow(
+            () -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND)
+        );
 
         // 5. 게이트웨이를 통해 결제 실행
         PaymentResult<?> result = gateway.pay(request, reservation.getTotalAmount());
 
         // 6. 결제 결과에 따른 결제 객체 변경
-        savedPayment.update(result.getStatus(), result.getExternalPaymentId());
+        payment.update(result.getStatus(), result.getExternalPaymentId());
 
         // 7. 예약 상태 업데이트
         reservation.updatePaymentStatus(result.getStatus());
