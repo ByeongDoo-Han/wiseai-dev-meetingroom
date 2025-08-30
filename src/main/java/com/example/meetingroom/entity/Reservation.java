@@ -97,7 +97,34 @@ public class Reservation extends BaseTimeEntity {
         this.totalAmount = calculateTotalPrice(meetingRoom.getPricePerHour());
     }
 
+    private Reservation(final Long id, final Member member, final MeetingRoom meetingRoom, final LocalDateTime startTime, final LocalDateTime endTime,
+                        final BigDecimal totalAmount) {
+        this.id = id;
+        this.member = member;
+        this.meetingRoom = meetingRoom;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.paymentStatus = PaymentStatus.PENDING;
+        valid(startTime, endTime);
+        this.totalAmount = calculateTotalPrice(meetingRoom.getPricePerHour());
+    }
+
     public static Reservation create(ReservationRequestDto dto, Member member, MeetingRoom meetingRoom) {
         return new Reservation(member, meetingRoom, dto.getStartTime(), dto.getEndTime());
+    }
+
+    public static Reservation create(Member member, MeetingRoom meetingRoom, LocalDateTime startTime, LocalDateTime endTime) {
+        return new Reservation(member, meetingRoom, startTime, endTime);
+    }
+
+    public static Reservation createForTest(Long id, Member member, MeetingRoom meetingRoom,
+                                            LocalDateTime startTime, LocalDateTime endTime,
+                                            BigDecimal totalAmount){
+        return new Reservation(id, member, meetingRoom, startTime, endTime, totalAmount);
+    }
+
+    public static Reservation createForTest(Member member, MeetingRoom meetingRoom,
+                                            LocalDateTime startTime, LocalDateTime endTime){
+        return new Reservation(member, meetingRoom, startTime, endTime);
     }
 }

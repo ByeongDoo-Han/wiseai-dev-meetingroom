@@ -36,30 +36,15 @@ class PaymentWebhookServiceTest {
 
     @BeforeEach
     void setUp() {
-        room1 = MeetingRoom.builder()
-            .id(1L)
-            .name("회의실 A")
-            .capacity(10)
-            .pricePerHour(new BigDecimal("10000"))
-            .build();
-        member = Member.builder().id(1L).role(Role.MEMBER).username("testuser").build();
+        room1 = MeetingRoom.createForTest(1L, "회의실 A", 10, new BigDecimal("10000"));
+        member = Member.createForTest(1L, "testuser", "password", Role.MEMBER);
 
-        reservation = Reservation.builder()
-            .id(1L)
-            .member(member)
-            .meetingRoom(room1)
-            .startTime(LocalDateTime.of(2025, 8, 10, 10, 0))
-            .endTime(LocalDateTime.of(2025, 8, 10, 11, 0))
-            .totalAmount(new BigDecimal("10000.00"))
-            .paymentStatus(PaymentStatus.PENDING)
-            .build();
+        reservation = Reservation.createForTest(1L, member, room1,
+            LocalDateTime.of(2025, 8, 10, 10, 0),
+            LocalDateTime.of(2025, 8, 10, 11, 0),
+            new BigDecimal("10000.00"));
 
-        payment = Payment.builder()
-            .id(1L)
-            .externalPaymentId("ext_payment_id_123")
-            .status(PaymentStatus.PENDING)
-            .reservation(reservation)
-            .build();
+        payment = Payment.createForTest(1L, "ext_payment_id_123", PaymentStatus.PENDING, reservation);
     }
 
     @DisplayName("결제 성공 웹훅 처리 테스트")

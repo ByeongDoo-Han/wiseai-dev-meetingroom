@@ -63,17 +63,12 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        member = Member.builder().id(1L).role(Role.MEMBER).username("testuser").build();
-        meetingRoom = MeetingRoom.builder().id(1L).name("회의실 A").pricePerHour(new BigDecimal("10000")).build();
-        reservation = Reservation.builder()
-                .id(1L)
-                .member(member)
-                .meetingRoom(meetingRoom)
-                .startTime(LocalDateTime.of(2025, 8, 10, 10, 0))
-                .endTime(LocalDateTime.of(2025, 8, 10, 11, 0))
-                .totalAmount(new BigDecimal("10000.00"))
-                .paymentStatus(PaymentStatus.PENDING)
-                .build();
+        member = Member.createForTest(1L, "testuser", "password", Role.MEMBER);
+        meetingRoom = MeetingRoom.createForTest(1L, "회의실 A", 10, BigDecimal.valueOf(10000));
+        reservation = Reservation.createForTest(1L, member, meetingRoom,
+            LocalDateTime.of(2025, 8, 10, 10, 0),
+            LocalDateTime.of(2025, 8, 10, 11, 0),
+            BigDecimal.valueOf(10000));
     }
 
     @Nested
@@ -97,14 +92,13 @@ class ReservationServiceTest {
                 request.getEndTime()
             )).willReturn(false);
 
-            Reservation savedReservation = Reservation.builder()
-                .id(2L)
-                .member(member)
-                .meetingRoom(meetingRoom)
-                .startTime(startTime)
-                .endTime(endTime)
-                .totalAmount(new BigDecimal("20000.00"))
-                .build();
+            Reservation savedReservation = Reservation.createForTest(
+                2L,
+                member,
+                meetingRoom,
+                startTime,
+                endTime,
+                BigDecimal.valueOf(20000));
 
             given(reservationRepository.save(any(Reservation.class))).willReturn(savedReservation);
 
@@ -181,7 +175,7 @@ class ReservationServiceTest {
         void cancel_fail_access_denied() {
             // given
             Long reservationId = 1L;
-            Member anotherMember = Member.builder().id(2L).username("anotherUser").build();
+            Member anotherMember = Member.createForTest(2L, "anotherUser", "password", Role.MEMBER);
 
             // 예약은 존재하지만, 'testuser'의 소유임
             given(reservationRepository.findById(reservationId)).willReturn(Optional.of(reservation));
@@ -332,7 +326,7 @@ class ReservationServiceTest {
                     .status(PaymentStatus.SUCCESS)
                     .externalPaymentId("ext_payment_123")
                     .build();
-            Payment pendingPayment = Payment.builder().id(1L).status(PaymentStatus.PENDING).build();
+            Payment pendingPayment = Payment.createForTest(1L);
 
             given(reservationRepository.findById(reservation.getId())).willReturn(Optional.of(reservation));
             given(paymentGateways.get(PaymentProviderType.CARD)).willReturn(mockGateway);
@@ -356,7 +350,7 @@ class ReservationServiceTest {
             PaymentResult failureResult = PaymentResult.builder()
                     .status(PaymentStatus.FAILED)
                     .build();
-            Payment pendingPayment = Payment.builder().id(1L).status(PaymentStatus.PENDING).build();
+            Payment pendingPayment = Payment.createForTest(1L);
 
             given(reservationRepository.findById(reservation.getId())).willReturn(Optional.of(reservation));
             given(paymentGateways.get(PaymentProviderType.CARD)).willReturn(mockGateway);

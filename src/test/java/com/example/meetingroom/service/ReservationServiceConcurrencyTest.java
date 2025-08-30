@@ -50,9 +50,9 @@ public class ReservationServiceConcurrencyTest {
     @DisplayName("두 사용자가 동시에 같은 시간에 예약을 생성하면 한 명만 성공해야 한다")
     void create_reservation_concurrently() throws InterruptedException {
         // given
-        Member member1 = memberRepository.save(Member.builder().username("concurrentUser1").password("password").role(Role.MEMBER).build());
-        Member member2 = memberRepository.save(Member.builder().username("concurrentUser2").password("password").role(Role.MEMBER).build());
-        MeetingRoom meetingRoom = meetingRoomRepository.save(MeetingRoom.builder().name("동시성 테스트 회의실").pricePerHour(new BigDecimal("1000")).build());
+        Member member1 = memberRepository.save(Member.createForTest(1L,"concurrentUser1", "password", Role.MEMBER));
+        Member member2 = memberRepository.save(Member.createForTest(2L,"concurrentUser2", "password", Role.MEMBER));
+        MeetingRoom meetingRoom = meetingRoomRepository.save(MeetingRoom.createForTest(1L, "동시성 테스트 회의실", 10, BigDecimal.valueOf(1000)));
 
         LocalDateTime startTime = LocalDateTime.of(2025, 12, 1, 15, 0);
         LocalDateTime endTime = startTime.plusHours(1);
@@ -111,25 +111,19 @@ public class ReservationServiceConcurrencyTest {
     @DisplayName("두 사용자가 동시에 서로의 예약 시간으로 변경 시, 교착 상태 없이 처리되어야 한다 (둘 다 실패)")
     void update_reservation_for_swap_concurrently() throws InterruptedException {
         // given
-        Member memberA = memberRepository.save(Member.builder().username("memberA").password("password").role(Role.MEMBER).build());
-        Member memberB = memberRepository.save(Member.builder().username("memberB").password("password").role(Role.MEMBER).build());
-        MeetingRoom meetingRoom = meetingRoomRepository.save(MeetingRoom.builder().name("교착상태 테스트 회의실").pricePerHour(new BigDecimal("1000")).build());
+        Member memberA = memberRepository.save(Member.createForTest("memberA", "password", Role.MEMBER));
+        Member memberB = memberRepository.save(Member.createForTest("memberB", "password", Role.MEMBER));
+        MeetingRoom meetingRoom = meetingRoomRepository.save(MeetingRoom.createForTest("교착상태 테스트 회의실", 10, new BigDecimal("1000")));
 
-        Reservation reservationA = reservationRepository.save(Reservation.builder()
-            .member(memberA).meetingRoom(meetingRoom)
-            .paymentStatus(PaymentStatus.PENDING)
-            .startTime(LocalDateTime.of(2026, 1, 1, 10, 0))
-            .endTime(LocalDateTime.of(2026, 1, 1, 11, 0))
-            .totalAmount(new BigDecimal("1000"))
-            .build());
+        Reservation reservationA = reservationRepository.save(Reservation.createForTest(memberA, meetingRoom,
+            LocalDateTime.of(2026, 1, 1, 10, 0),
+            LocalDateTime.of(2026, 1, 1, 11, 0)
+        ));
 
-        Reservation reservationB = reservationRepository.save(Reservation.builder()
-            .member(memberB).meetingRoom(meetingRoom)
-            .paymentStatus(PaymentStatus.PENDING)
-            .startTime(LocalDateTime.of(2026, 1, 1, 12, 0))
-            .endTime(LocalDateTime.of(2026, 1, 1, 13, 0))
-            .totalAmount(new BigDecimal("1000"))
-            .build());
+        Reservation reservationB = reservationRepository.save(Reservation.createForTest(memberB, meetingRoom,
+            LocalDateTime.of(2026, 1, 1, 12, 0),
+            LocalDateTime.of(2026, 1, 1, 13, 0)
+        ));
 
         ReservationRequestDto requestA = ReservationRequestDto.builder()
             .meetingRoomId(meetingRoom.getId())

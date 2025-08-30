@@ -33,7 +33,7 @@ class PaymentsServiceTest {
     void getPaymentStatus_success() {
         // given
         long paymentId = 1L;
-        Payment payment = Payment.builder().id(paymentId).status(PaymentStatus.SUCCESS).build();
+        Payment payment = Payment.createForTest(paymentId, PaymentStatus.SUCCESS);
         given(paymentsRepository.findById(paymentId)).willReturn(Optional.of(payment));
 
         // when
