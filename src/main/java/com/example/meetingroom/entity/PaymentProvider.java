@@ -21,15 +21,17 @@ public class PaymentProvider {
     @Column(nullable = true)
     private String authInfo;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private PaymentProviderType providerType;
 
-    @Builder
-    public PaymentProvider(final Long id, final String name, final String apiEndpoint, final String authInfo, final PaymentProviderType providerType) {
-        this.id = id;
+    private PaymentProvider(final String name, final String apiEndpoint, final String authInfo, final PaymentProviderType providerType) {
         this.name = name;
         this.apiEndpoint = apiEndpoint;
         this.authInfo = authInfo;
         this.providerType = providerType;
+    }
+
+    public static PaymentProvider create(final String name, final String apiEndpoint, final String authInfo, final PaymentProviderType providerType) {
+        return new PaymentProvider(name, apiEndpoint, authInfo, providerType);
     }
 }

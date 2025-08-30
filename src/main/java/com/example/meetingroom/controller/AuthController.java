@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +32,14 @@ public class AuthController {
     @Operation(summary = "회원가입", description = "새로운 사용자를 시스템에 등록합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "회원가입 성공"),
-        @ApiResponse(responseCode = "409", description = "이미 존재하는 사용자 ID", content = @Content(schema = @Schema(hidden = true)))
+        @ApiResponse(responseCode = "409", description = "이미 존재하는 사용자 ID",
+            content = @Content(mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "중복 사용자 예시",
+                    ref = "#/components/examples/userAlreadyExistedExample"
+                )
+            )
+        )
     })
     @PostMapping("/register")
     public ResponseEntity<CustomResponseEntity<Object>> registerMember(@RequestBody RegisterMemberRequestDto registerMemberDto) {

@@ -71,13 +71,13 @@ public class Payment extends BaseTimeEntity {
         this.reservation = reservation;
     }
 
-    public static Payment create(PaymentRequest request, Reservation reservation){
-        return new Payment(
-            request.getProviderType(),
-            reservation.getTotalAmount(),
-            PaymentStatus.PENDING,
-            null,
-            reservation);
+    private Payment(final Long id, final PaymentProviderType paymentProviderType, final BigDecimal amount, final PaymentStatus status, final String externalPaymentId, final Reservation reservation) {
+        this.id = id;
+        this.paymentProviderType = paymentProviderType;
+        this.amount = amount;
+        this.status = status;
+        this.externalPaymentId = externalPaymentId;
+        this.reservation = reservation;
     }
 
     public static Payment createWithReservation(Reservation reservation){
@@ -88,5 +88,17 @@ public class Payment extends BaseTimeEntity {
             null,
             reservation
         );
+    }
+
+    public static Payment createForTest(Long id){
+        return new Payment(id, null, null, PaymentStatus.PENDING, null, null);
+    }
+
+    public static Payment createForTest(Long id, PaymentStatus status) {
+        return new Payment(id, null, null, status, null, null);
+    }
+
+    public static Payment createForTest(Long id, String externalPaymentId, PaymentStatus status, Reservation reservation) {
+        return new Payment(id, null, reservation != null ? reservation.getTotalAmount() : null, status, externalPaymentId, reservation);
     }
 }

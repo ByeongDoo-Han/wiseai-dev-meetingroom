@@ -40,19 +40,8 @@ public class MeetingRoomServiceTest {
 
     @BeforeEach
     void setUp() {
-        room1 = MeetingRoom.builder()
-                .id(1L)
-                .name("회의실 A")
-                .capacity(10)
-                .pricePerHour(new BigDecimal("10000"))
-                .build();
-
-        room2 = MeetingRoom.builder()
-                .id(2L)
-                .name("회의실 B")
-                .capacity(5)
-                .pricePerHour(new BigDecimal("7000"))
-                .build();
+        room1 = MeetingRoom.createForTest(1L, "회의실 A", 10, BigDecimal.valueOf(10000));
+        room2 = MeetingRoom.createForTest(2L, "회의실 B", 5, BigDecimal.valueOf(7000));
     }
 
     @Test
@@ -76,13 +65,7 @@ public class MeetingRoomServiceTest {
     void createMeetingRoom_shouldReturnNewMeetingRoom() {
         // Given
         MeetingRoomRequestDto requestDto = new MeetingRoomRequestDto("새 회의실", 20, new BigDecimal("20000"));
-        MeetingRoom newRoom = MeetingRoom.builder()
-                .id(3L)
-                .name(requestDto.getName())
-                .capacity(requestDto.getCapacity())
-                .pricePerHour(requestDto.getPricePerHour())
-                .build();
-
+        MeetingRoom newRoom = MeetingRoom.createForTest(3L, requestDto.getName(), requestDto.getCapacity(), requestDto.getPricePerHour());
         given(meetingRoomRepository.save(any(MeetingRoom.class))).willReturn(newRoom);
 
         // When
