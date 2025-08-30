@@ -31,6 +31,21 @@ public class MeetingRoom {
         this.pricePerHour = validPricePerHourLargerThanZero(pricePerHour);
     }
 
+    private MeetingRoom(Long id, String name, int capacity, BigDecimal pricePerHour) {
+        this.id = id;
+        this.name = name;
+        this.capacity = validCapacityLargerThanZero(capacity);
+        this.pricePerHour = validPricePerHourLargerThanZero(pricePerHour);
+    }
+
+    public static MeetingRoom createForTest(final long l, final String name, final int capacity, final BigDecimal pricePerHour) {
+        return new MeetingRoom(l, name, capacity, pricePerHour);
+    }
+
+    public static MeetingRoom createForTest(final String name, final int capacity, final BigDecimal pricePerHour) {
+        return new MeetingRoom(name, capacity, pricePerHour);
+    }
+
     private int validCapacityLargerThanZero(int capacity) {
         if (capacity < 1) {
             throw new CustomException(ErrorCode.MEETING_ROOM_CAPACITY_IS_ZERO);
@@ -53,5 +68,9 @@ public class MeetingRoom {
 
     public static MeetingRoom create(final MeetingRoomRequestDto dto) {
         return new MeetingRoom(dto.getName(), dto.getCapacity(), dto.getPricePerHour());
+    }
+
+    public static MeetingRoom create(String name, int capacity, BigDecimal pricePerHour) {
+        return new MeetingRoom(name, capacity, pricePerHour);
     }
 }

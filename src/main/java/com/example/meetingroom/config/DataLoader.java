@@ -30,94 +30,61 @@ public class DataLoader implements CommandLineRunner {
         if (memberRepository.count() == 0) {
             System.out.println("초기 데이터 로드 시작...");
 
-            PaymentProvider card = PaymentProvider.builder()
-                .name("병두카드")
-                .providerType(PaymentProviderType.CARD)
-                .apiEndpoint("http://meetingroom-card/payments/card")
-                .authInfo("bd_payments_key_abcd1234")
-                .build();
-
+            PaymentProvider card = PaymentProvider.create(
+                "병두카드",
+                "http://meetingroom-card/payments/card",
+                "bd_payments_key_abcd1234",
+                PaymentProviderType.CARD
+            );
             paymentProviderRepository.save(card);
 
-            PaymentProvider simplePay = PaymentProvider.builder()
-                .name("병두 간편결제")
-                .providerType(PaymentProviderType.SIMPLE_PAYMENT)
-                .apiEndpoint("http://meetingroom-simple/payments/simple")
-                .authInfo("bd_user:bd_password")
-                .build();
+            PaymentProvider simplePay = PaymentProvider.create(
+                "병두 간편결제",
+                "http://meetingroom-simple/payments/simple",
+                "bd_user:bd_password",
+                PaymentProviderType.SIMPLE_PAYMENT
+            );
             paymentProviderRepository.save(simplePay);
 
-            PaymentProvider virtualPay = PaymentProvider.builder()
-                .name("병두 가상계좌 결제")
-                .providerType(PaymentProviderType.VIRTUAL_ACCOUNT)
-                .apiEndpoint("http://meetingroom-virtual/payments/virtual")
-                .authInfo(
-                    """
-                            {
-                                "clientId" : "CLIENT_ID",
-                                "clientPassword" : "CLIENT_PASSWORD"                            
-                            }
-                        """
-                )
-                .build();
+            PaymentProvider virtualPay = PaymentProvider.create(
+                "병두 가상계좌 결제",
+                "http://meetingroom-virtual/payments/virtual",
+                """
+                    {
+                        "clientId" : "CLIENT_ID",
+                        "clientPassword" : "CLIENT_PASSWORD"
+                    }
+                """,
+                PaymentProviderType.VIRTUAL_ACCOUNT
+            );
             paymentProviderRepository.save(virtualPay);
 
-            Member adminMember = Member.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("adminpass"))
-                .role(Role.ADMIN)
-                .build();
+            Member adminMember = Member.create("admin", passwordEncoder.encode("adminpass"), Role.ADMIN);
             memberRepository.save(adminMember);
 
-            Member userMember = Member.builder()
-                .username("testuser")
-                .password(passwordEncoder.encode("testpass"))
-                .role(Role.MEMBER)
-                .build();
+            Member userMember = Member.create("testuser", passwordEncoder.encode("testpass"), Role.MEMBER);
             memberRepository.save(userMember);
 
-            Member member = Member.builder()
-                .username("string")
-                .password(passwordEncoder.encode("string"))
-                .role(Role.MEMBER)
-                .build();
+            Member member = Member.create("string", passwordEncoder.encode("string"), Role.MEMBER);
             memberRepository.save(member);
             System.out.println("사용자 데이터 로드 완료.");
 
-            MeetingRoom roomA = MeetingRoom.builder()
-                .name("회의실 A")
-                .capacity(10)
-                .pricePerHour(new BigDecimal("15000"))
-                .build();
+            MeetingRoom roomA = MeetingRoom.create("회의실 A", 10, new BigDecimal("15000"));
             meetingRoomRepository.save(roomA);
 
-            MeetingRoom roomB = MeetingRoom.builder()
-                .name("회의실 B")
-                .capacity(5)
-                .pricePerHour(new BigDecimal("10000"))
-                .build();
+            MeetingRoom roomB = MeetingRoom.create("회의실 B", 5, new BigDecimal("10000"));
             meetingRoomRepository.save(roomB);
 
             System.out.println("회의실 데이터 로드 완료.");
 
-            Reservation sampleReservation = Reservation.builder()
-                .member(userMember)
-                .meetingRoom(roomA)
-                .paymentStatus(PaymentStatus.PENDING)
-                .startTime(LocalDateTime.of(2025, 9, 1, 10, 0))
-                .endTime(LocalDateTime.of(2025, 9, 1, 11, 0))
-                .totalAmount(new BigDecimal("15000"))
-                .build();
+            Reservation sampleReservation = Reservation.create(userMember, roomA,
+                LocalDateTime.of(2025, 9, 1, 10, 0),
+                LocalDateTime.of(2025, 9, 1, 11, 0));
             reservationRepository.save(sampleReservation);
 
-            Reservation sampleReservation2 = Reservation.builder()
-                .member(member)
-                .meetingRoom(roomA)
-                .paymentStatus(PaymentStatus.PENDING)
-                .startTime(LocalDateTime.of(2025, 9, 2, 10, 0))
-                .endTime(LocalDateTime.of(2025, 9, 2, 11, 0))
-                .totalAmount(new BigDecimal("15000"))
-                .build();
+            Reservation sampleReservation2 = Reservation.create(member, roomA,
+                LocalDateTime.of(2025, 9, 2, 10, 0),
+                LocalDateTime.of(2025, 9, 2, 11, 0));
             reservationRepository.save(sampleReservation2);
 
             System.out.println("샘플 예약 데이터 로드 완료.");
