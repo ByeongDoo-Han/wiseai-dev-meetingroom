@@ -36,7 +36,6 @@ public class ReservationService {
     private final Map<PaymentProviderType, PaymentGateway> paymentGateways;
 
     @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
-    @Transactional
     public ReservationResponseDto createReservation(final String username, final ReservationRequestDto request) {
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getMeetingRoomId()).orElseThrow(
             () -> new CustomException(ErrorCode.MEETING_ROOM_NOT_FOUND)
