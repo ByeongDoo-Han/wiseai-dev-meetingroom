@@ -48,7 +48,9 @@ public enum ErrorCode {
     USER_NOT_MATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "U003", "비밀번호가 일치하지 않습니다."),
 
     // lock
-    LOCK_GET_FAIL(HttpStatus.CONFLICT, "L001", "락 획득에 실패했습니다.");
+    LOCK_GET_FAIL(HttpStatus.CONFLICT, "L001", "락 획득에 실패했습니다."),
+
+    INVALID_WEBHOOK_SIGNATURE(HttpStatus.BAD_REQUEST, "W001", "올바르지 않은 웹훅 서명입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
