@@ -1,5 +1,7 @@
 package com.example.meetingroom.aop;
 
+import com.example.meetingroom.exception.CustomException;
+import com.example.meetingroom.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,8 +22,8 @@ import java.lang.reflect.Method;
 @Slf4j
 public class DistributedLockAop {
     private static final String RESERVATION_LOCK_PREFIX = "RESERVATION:";
-    private final AopForTransaction aopForTransaction;
     private final RedissonClient redissonClient;
+    private final AopForTransactional aop;
 
     @Around("@annotation(com.example.meetingroom.aop.DistributedLock)")
     public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -43,24 +45,12 @@ public class DistributedLockAop {
             if (!available) {
                 return false;
             }
-            Object result = aopForTransaction.proceed(joinPoint);
-
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCompletion(int status) {
-                    if (rLock.isLocked() && rLock.isHeldByCurrentThread()) {
-                        rLock.unlock();
-                        log.info("Redisson Lock unlocked after transaction completion: {}", key);
-                    }
-                }
-            });
+            Object result = aop.proceed(joinPoint);
             return result;
-        } catch (Exception e) {
-            if (rLock.isLocked() && rLock.isHeldByCurrentThread()) {
-                rLock.unlock();
-                log.info("Redisson Lock unlocked due to exception: {}", key);
-            }
-            throw e;
+        } catch (InterruptedException e){
+            throw new CustomException(ErrorCode.LOCK_GET_FAIL);
+        } finally {
+            rLock.unlock();
         }
     }
 }
