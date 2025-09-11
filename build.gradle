@@ -47,6 +47,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.23.4'
 
     // JWT
@@ -63,6 +64,9 @@ dependencies {
 
     // wiremock
     testImplementation("com.github.tomakehurst:wiremock:3.0.1")
+
+    // cache
+    implementation("org.springframework.boot:spring-boot-starter-cache")
 }
 
 tasks.named('test') {
