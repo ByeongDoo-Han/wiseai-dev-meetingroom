@@ -9,11 +9,14 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import java.io.Serializable;
+
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ReservationResponseDto {
+public class ReservationResponseDto implements Serializable {
     private final Long id;
     private final String username;
+    private final Long meetingRoomId;
     private final String meetingRoomName;
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
@@ -24,6 +27,7 @@ public class ReservationResponseDto {
         return new ReservationResponseDto(
             reservation.getId(),
             reservation.getMember().getUsername(),
+            reservation.getMeetingRoom().getId(),
             reservation.getMeetingRoom().getName(),
             reservation.getStartTime(),
             reservation.getEndTime(),

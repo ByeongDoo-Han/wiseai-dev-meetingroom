@@ -13,29 +13,34 @@ import com.example.meetingroom.repository.PaymentsRepository;
 import com.example.meetingroom.repository.ReservationRepository;
 import com.example.meetingroom.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
     public static final String RESERVATION_LOCK_PREFIX = "RESERVATION:";
+    public static final String RESERVATION_CACHED_VALUE = "reservations";
+    public static final String RESERVATION_CACHED_KEY = "all";
     private final ReservationRepository reservationRepository;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberRepository memberRepository;
     private final PaymentsRepository paymentRepository;
     private final Map<PaymentProviderType, PaymentGateway> paymentGateways;
 
+    private final CacheManager cacheManager;
+
     @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
+    @CacheEvict(value = RESERVATION_CACHED_VALUE, allEntries = true)
     public ReservationResponseDto createReservation(final String username, final ReservationRequestDto request) {
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getMeetingRoomId()).orElseThrow(
             () -> new CustomException(ErrorCode.MEETING_ROOM_NOT_FOUND)
@@ -43,12 +48,12 @@ public class ReservationService {
         Member member = memberRepository.findMemberByUsername(username).orElseThrow(
             () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
+        validationDuplicated(request);
         if (reservationRepository.existDuplicatedReservation(
             request.getMeetingRoomId(), request.getStartTime(), request.getEndTime()
         )) {
             throw new CustomException(ErrorCode.RESERVATION_TIME_CONFLICT);
         }
-
         Reservation reservation = Reservation.create(request, member, meetingRoom);
         Payment payment = Payment.createWithReservation(reservation);
         reservationRepository.save(reservation);
@@ -56,18 +61,36 @@ public class ReservationService {
         return ReservationResponseDto.from(reservation);
     }
 
-    @Transactional
-    public List<ReservationResponseDto> getAllReservation() {
-        List<Reservation> reservationResponseList = reservationRepository.findAll();
-        List<ReservationResponseDto> response = new ArrayList<>();
-        for (Reservation reservation : reservationResponseList) {
-            response.add(ReservationResponseDto.from(reservation));
+    private void validationDuplicated(final ReservationRequestDto request) {
+        List<ReservationResponseDto> cachedReservations = cacheManager.getCache(RESERVATION_CACHED_VALUE).get(RESERVATION_CACHED_KEY,List.class);
+        if(cachedReservations !=null){
+            boolean hasConflict = cachedReservations.stream()
+                .anyMatch(r -> r.getMeetingRoomId().equals(request.getMeetingRoomId())
+                    && reservationRepository.existDuplicatedReservation(
+                    request.getMeetingRoomId(), request.getStartTime(), request.getEndTime()
+                ));
+            if(hasConflict){
+                throw new CustomException(ErrorCode.RESERVATION_TIME_CONFLICT);
+            }
+        }else{
+            boolean hasConflict = reservationRepository.existDuplicatedReservation(
+                request.getMeetingRoomId(), request.getStartTime(), request.getEndTime()
+            );
+            if (hasConflict) {
+                throw new CustomException(ErrorCode.RESERVATION_TIME_CONFLICT);
+            }
         }
-        return response;
+    }
+
+    @Transactional
+    @Cacheable(value = RESERVATION_CACHED_VALUE, key = "'all'")
+    public List<ReservationResponseDto> getAllReservation() {
+        return reservationRepository.findAll().stream().map(ReservationResponseDto::from).collect(Collectors.toList());
     }
 
     @Transactional
     @DistributedLock(key = "#request.meetingRoomId", lockName = RESERVATION_LOCK_PREFIX)
+    @CacheEvict(value = RESERVATION_CACHED_VALUE, allEntries = true)
     public ReservationResponseDto updateReservation(final Long id, final String username, final ReservationRequestDto request) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
@@ -93,6 +116,7 @@ public class ReservationService {
 
     @DistributedLock(key = "#reservationId", lockName = RESERVATION_LOCK_PREFIX)
     @Transactional
+    @CacheEvict(value = RESERVATION_CACHED_VALUE, allEntries = true)
     public void cancelReservation(final String username, final Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
             () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)
